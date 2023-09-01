@@ -1,0 +1,226 @@
+---
+title: "20230816_globBurdDisease"
+output: pdf_document
+date: "2023-08-16"
+---
+
+Data source: https://vizhub.healthdata.org/gbd-results/
+
+to do:
+ *Clarify what "percentage" means; I assume this is percent of total population - probably not
+  stratified by age group, etc
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Modeling the global burden of infectious Diseases
+ In the first version a location may have been covered by multiple 'regions'; here I use 
+ "IHME-GBD_2019_DATA-afd4b08e-1.csv", in which only one classification of 21 mutually exclusive
+ regions is used; The file only contains data on HIV, Tuberculosis and Zika virus; data are
+ from male and female (but not "both"); ages are largely in 5 year intervals
+
+Clean and load libraries
+```{R}
+rm(list=ls())
+cat('\014')
+graphics.off()
+
+library('rjags')
+library('tidyverse')
+library('data.table')
+library('dtw')  #time series clustering
+source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
+```
+
+## Data import
+Obtain a file that contains all years only for "Tuberculosis","HIV/AIDS","Zika virus"
+```{R}
+allTime_HTZ= read.csv('G:/My Drive/20230815_GlobBurdDisease/20230823_Deaths_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-afd4b08e-1.csv',stringsAsFactors = TRUE)   #HTZ= "Tuberculosis","HIV/AIDS","Zika virus"
+#limit to metric== 'Percent' and remove 'Number'
+allTime_HTZ= allTime_HTZ[allTime_HTZ$metric=='Percent',]
+```
+
+Check data for completeness
+```{R}
+dim(allTime_HTZ)
+head(allTime_HTZ)
+str(allTime_HTZ)
+
+cause_location_tab= allTime_HTZ %>%
+  filter(measure=='Deaths' & sex=='Male' & age=='30-34 years' ) %>%
+  group_by(cause,location) %>%
+  summarise(count= n_distinct(year))
+
+#all location - cause combinations should have 30 years
+all(cause_location_tab$count == 30)
+```
+
+Encode 'cause' as number to allow indexing by it
+```{R}
+allTime_HTZ$disFac= as.numeric(as.factor(allTime_HTZ$cause))
+dim(allTime_HTZ)
+summary(allTime_HTZ$val)
+summary(allTime_HTZ$year)
+hist(allTime_HTZ$val,main='Disease percentages - all margins')
+hist(allTime_HTZ$val,xlim=c(0,0.1),breaks= 200,main='Zoom: Disease percentages - all margins')
+```
+## Age- & sex- independent analysis
+ Average percentages over all age groups for location-cause(disFac)-year combination
+```{R}
+allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
+  group_by(location,cause,disFac,year) %>%
+  summarize(val= mean(val)) )
+head(allTime_HTZ_asi)
+dim(allTime_HTZ_asi)
+```
+
+Visualize data
+```{R}
+ggplot(data=allTime_HTZ_asi,mapping=aes(x=year,y=val,group=location,color=location))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~cause,scales='free_y')+
+  guides(color='none')
+```
+First impression:
+*HIV rises to about year15, then steady decline; need to check if that is true for all countries
+ or just impression from high-incidence ones
+*some HIV outliers that need to be investigated
+*In most countries, tuberculosis is steadily declining, but in some there appears to be outbreak
+*Zika is only observed at high prevalence after about 25 years; huge variation between countries
+
+Are there locations that did not have any case?
+```{R}
+allTime_HTZ_asi_sums= allTime_HTZ_asi %>%
+  group_by(location,cause) %>%
+  summarize(sumPerc= sum(val))
+
+allTime_HTZ_asi_sums[allTime_HTZ_asi_sums$sumPerc==0,]
+```
+15 locations did not have any case of Zika
+
+Normalize to max percentages to get a clearer picture of dynamics in low incidence locations
+```{R}
+allTime_HTZ_asi_norm= allTime_HTZ_asi %>%
+  group_by(location,cause,disFac) %>%
+  mutate(val_maxNorm= val/ifelse(max(val)>0,max(val),1) ) %>%
+  ungroup()
+
+ggplot(data=allTime_HTZ_asi_norm,mapping=aes(x=year,y=val_maxNorm,group=location,color=location))+
+  geom_point()+
+  geom_line()+
+  theme(axis.title.y= element_text('Normalized to highest incidence year'))+
+  facet_wrap(~cause,scales='free_y')+
+  guides(color='none')    
+```
+
+Work on one cause at a time; start with Tuberculosis
+ most locations decrease steadily, but there seem to be 5 that increase, then decrease
+Perform clustering at max-normalized data; worry later about differences in absolute percentages
+```{R}
+head(allTime_HTZ_asi_norm)
+
+allTime_HIV_asi_norm= allTime_HTZ_asi_norm[allTime_HTZ_asi_norm$cause=='HIV/AIDS',]
+HIV_wide= allTime_HIV_asi_norm %>%
+  mutate(year= as.factor(year)) %>%
+  select(location,year,val)%>%
+  pivot_wider(names_from= year,values_from= val)
+
+loc_labels= as.character(HIV_wide$location)
+HIV_mtx= as.matrix(HIV_wide[,2:dim(HIV_wide)[2]])
+
+#cluster timecourses
+distMtx= dist(HIV_mtx,method='dtw')  #"dynamic time warping"
+hc= hclust(distMtx,method='average')  #
+plot(hc)  #,labels=loc_labels
+
+#cut into three groups
+dendroInd= cutree(hc,k=3)
+allTime_HIV_asi_norm$dendGrp= dendroInd[match(allTime_HIV_asi_norm$location,loc_labels)]
+
+ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp ==1,], mapping=aes(x=year,y=val_maxNorm,color=location))+
+  geom_point()+
+  geom_line()+
+  coord_cartesian(ylim=c(0,1))+
+  theme(axis.title.y= element_text('Normalized to highest incidence year'))
+
+ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp %in% c(2,3),], mapping=aes(x=year,y=val_maxNorm,color=location))+
+  geom_point()+
+  geom_line()+
+  coord_cartesian(ylim=c(0,1))+
+  theme(axis.title.y= element_text('Normalized to highest incidence year'))
+
+# ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp==3,], mapping=aes(x=year,y=val_maxNorm,color=location))+
+#   geom_point()+
+#   geom_line()+
+#   coord_cartesian(ylim=c(0,1))+
+#   theme(axis.title.y= element_text('Normalized to highest incidence year'))
+```
+The normalized trajectories for the African locations + Caribbean are very similar
+
+It is interesting to note that some trajectories have a clear turning point, from which on
+ the death percentage decreases; this could be a simple point measure to compare trajectories and
+ answer questions like:
+ *Is turning point present for all countries in a region and does it occur simultaneously
+ *Do different diseases have the a turning point at a similar time (i.e. is turning disease specific or
+  due to change that affects several diseases)
+ *Does the prevalence/infection rate decline with the disease rate (i.e. was there a reduction in the
+  cause of the desease or did treatment get better?)
+
+## Model1: 
+Model percent of deaths as a linear function of time, where individual measurements
+ (different locations, genders, ages) are distributed around the mean by a t-distribution;
+ intercept has a uniform prior, slope normal prior with mean 0
+
+Build model1:
+ linear model of percentage vs year
+  using t-distribution on slope
+```{R}
+allTime_HTZ$year= allTime_HTZ$year-1990  #Set 1990 as "year 0";
+
+mod1Str='
+model{
+  for(i in 1:Ntotal){   #loop over all observations
+    pc[i] ~ dt(b0[d[i]] + b1[d[i]]*year[i], sigma, nu )   #coefficients specific to disease
+  }
+  for(j in 1:Ndis){
+    b0[j] ~ dunif(1/1000,1000)
+    b1[j] ~ dnorm(0, 2^2)   #sd= 1/2
+  }
+  nuMin1 ~ dexp(1/29.0)
+  nu= nuMin1 +1
+  sigma~ dunif(0,1)
+}'
+```
+MCMC for posteriors
+```{R}
+# data1List= list(
+#   Ntotal= dim(data1)[1],
+#   Ndis= length(unique(data1$cause)),
+#   pc= data1$val,  #percentage
+#   d= data1$disFac,
+#   year= data1$year
+# )
+
+redData1List= list(
+  Ntotal= dim(redData)[1],
+  Ndis= length(unique(redData$cause)),
+  pc= redData$val,  #percentage
+  d= redData$disFac,
+  year= redData$year
+)
+
+jags1= jags.model(file=textConnection(mod1Str),data=redData1List,n.chains=3)
+```
+
+```{R}
+cS1= coda.samples(model=jags1,variable.names=c('b0','b1','sigma','nu'),n.iter=10000)
+```
+
+```{R}
+for(i in 1:length(varnames(cS1))){
+  diagMCMC(codaObject= cS1,parName=varnames(cS1)[i]  )
+}
+```
+This does not produce good coefficient estimates. I probably need a different link function for data that are a percentage.
