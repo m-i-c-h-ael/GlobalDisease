@@ -48,7 +48,7 @@ lines(t, est[1] + est[2]*t + est[3]*ifelse(t>est[4],t-est[4],0),col='blue')
 
 
 ###******************************************************####
-#extimate parameters based on Bayesian model
+#estimate parameters based on Bayesian model
 library('rjags')
 source('H:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
 
@@ -74,9 +74,17 @@ model{
   }
    #priors
    a0 ~ dnorm(0,1)      #orig. scale mean= mean_y
-   a1 ~ dgamma(.05,2)     #orig. scale mean= 0.025*sd_y, ESS= 2
-   a2 = -a2_neg         #ensure a2 is negative on same scale as a1
-   a2_neg~ dgamma(.05,2)
+   
+   #Prior for a1 has tail in the right and for a2 in the left direction ->
+    #it is clear which is the positive and which the negative slope
+   #To allow parameter estimates of 0, shift them so that the mean of each
+    #prior is at 0
+   #(cases with only small slopes will have high autocorrelation)
+   a1_shift ~ dgamma(.05,2)     #orig. scale mean= 0.025*sd_y, ESS= 2
+   a1= a1_shift-0.025  #mean at 0
+   a2 = -a2_neg_shift+0.025         #ensure a2 is negative on same scale as a1
+   a2_neg_shift~ dgamma(.05,2)
+   
    t0_z= t0-t_half
    t0 ~ dunif(0,2*t_half)  #t0 anywhere between 0 and max(t)
    sig_y ~ dgamma(1/10,1) #on transformed scale
@@ -127,10 +135,13 @@ plot(DF1$b1,DF1$b2,col='skyblue')
 # Test prediction power for some data
 
 a0=2
-t= 0:100
-t0= 40
-coefDF= expand.grid(a1=c(0.1,1,10), a2=c(-.1,-0.2,-0.5))
+t= 0:40 #match the actual data: 1 measurement per year for 40 years
+t0= 25
+coefDF= expand.grid(a1=c(0.01,0.1,1), a2=c(-.01,-.1,-0.2,-0.5))   #a1>0, a2<0
 
+
+dev.new(width=9,height=9,noRStudioGD = TRUE)
+par(mfrow=c(nrow=ceiling(dim(coefDF)[1]/3),ncol=3)) #,oma=c(3,3,3,3)
 DF_result= data.frame(matrix(NA,nrow=dim(coefDF)[1],ncol=6))
 colnames(DF_result)= c('b1','b2','b1_correct','b2_correct','b1_CV', 'b2_CV')
 for(i in 1:dim(coefDF)[1]){
@@ -140,7 +151,9 @@ for(i in 1:dim(coefDF)[1]){
   noise= rnorm(length(t),mean=0,sd=0.1*abs(y_noNoise))  #noise relative to data
   y= y_noNoise+noise
   y[y<0]= 0   #make sure no negative values
-  plot(t,y,ylim=c(0,1.1*max(y)))
+  plot(t,y,ylim=c(0,1.1*max(y)),main=paste('b1:',a1,', b2:',a2)) #change naming: 'a' are simulated, 'b' estimated params
+  #mtext(at=c(1,0),paste(a1),outer=TRUE)
+  #mtext(at=c(0,y=mean(par('usr')[3:4])),paste(a1),outer=TRUE)
   
   dataList= list( t= t, y= y, Ntotal= length(y) )
   
@@ -150,13 +163,15 @@ for(i in 1:dim(coefDF)[1]){
   DF1= data.frame(cS[[1]])
   HDIlower_b1= HDIofMCMC(DF1$b1,credMass=.95)[1]  #lower bound of HDI -> diff. from 0?
   DF_result$b1_correct[i]= ifelse(a1>0 & HDIlower_b1>0 | a1==0 & HDIlower_b1<=0,1,0) #b1 correctly classified
-  DF_result$b1_CV[i]= abs(mean(DF1$b1)-a1)/abs(a1)  #error of mean estimate
-  HDIlower_b2= HDIofMCMC(DF1$b2,credMass=.95)[1]  #lower bound of HDI -> diff. from 0?
-  DF_result$b2_correct[i]= ifelse(a2<0 & HDIlower_b2<0 | a2==0 & HDIlower_b2>=0,1,0) #b2 correctly classified
-  DF_result$b2_CV[i]= abs(mean(DF1$b2)-a2)/abs(a2)  #error of mean estimate
+  DF_result$b1_relErr[i]= abs(mean(DF1$b1)-a1)/abs(a1)  #relative error of mean estimate
+  HDIupper_b2= HDIofMCMC(DF1$b2,credMass=.95)[2]  #lower bound of HDI -> diff. from 0?
+  DF_result$b2_correct[i]= ifelse(a2<0 & HDIupper_b2<0 | a2==0 & HDIupper_b2>=0,1,0) #b2 correctly classified
+  DF_result$b2_relErr[i]= abs(mean(DF1$b2)-a2)/abs(a2)  #relative error of mean estimate
   
   lines(t, mean(DF1$b0) + mean(DF1$b1)*t + mean(DF1$b2)*ifelse(t>mean(DF1$t0),t-mean(DF1$t0),0),col='blue')
 }
+#dev.off()
+dev.new(width=4,height=7,noRStudioGD = TRUE)
 
 #manually reformat
 DF_result_long= cbind.data.frame(
@@ -164,17 +179,14 @@ DF_result_long= cbind.data.frame(
   x= factor(c(rep(1,dim(DF_result)[1]),rep(2,dim(DF_result)[1])),levels=c(1,2)),
   y= rep(1:dim(DF_result)[1],times=2),
   correct= factor(c(DF_result$b1_correct,DF_result$b2_correct),levels=c(0,1)),
-  CV= c(DF_result$b1_CV,DF_result$b2_correct_CV),
-  log10_recipCV= log(1/c(DF_result$b1_CV,DF_result$b2_correct_CV),10) #log10 of recip. CV
+  relErr= c(DF_result$b1_relErr,DF_result$b2_correct_relErr),
+  log10_recipRelErr= log(1/c(DF_result$b1_relErr,DF_result$b2_correct_relErr),10) #log10 of recip. relErr
 )
 
-# cols= c('red','green')
-# plot(x=DF_result_long$x,y=DF_result_long$y,pch='o',cex=DF_result_long$CV,
-#      col=cols[DF_result_long$correct+1])
 ggplot()+
-  geom_point(data=DF_result_long,aes(x=x,y=y,color=correct,size=log10_recipCV))+  
-  scale_color_manual(limits=as.character(c(0,1)),values=c('red','green'))+
-  scale_size_continuous(breaks=log(1/c(0.01,0.1,0.3),10),labels=c(0.01,0.1,0.3),name='CV')+
+  geom_point(data=DF_result_long,aes(x=x,y=y,color=correct,size=log10_recipRelErr))+  
+  scale_color_manual(limits=as.character(c(0,1)),values=c('red','green'),labels=c('no','yes'))+
+  scale_size_continuous(breaks=log(1/c(0.01,0.1,0.3),10),labels=c(0.01,0.1,0.3),name='rel. Error')+
   geom_text(data=DF_result_long,aes(x=as.numeric(x)-0.2,y=y, label=coef))+
   theme_minimal()+
   scale_x_discrete(breaks=c(1,2),labels=c('b1','b2'))+
