@@ -24,8 +24,8 @@ graphics.off()
 suppressWarnings({      #no warnings to avoid cluttering Knit
 library('tidyverse',quietly=TRUE,warn.conflicts = FALSE,verbose=FALSE) 
 library('rjags')
-source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
-source('G:/My Drive/20230815_GlobBurdDisease/20230905_twoLine_fit.R')
+source('H:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
+source('H:/My Drive/20230815_GlobBurdDisease/20230905_twoLine_fit.R')
 })
 ```
 
@@ -38,8 +38,9 @@ a0=2
 a1=1
 a2= -1.5
 
-t= 0:100
-t0= 40
+t_orig= 1990:2019
+t= t_orig-min(t_orig)
+t0= 20
 
 y_noNoise= a0 + a1*t + a2*ifelse(t>t0,t-t0,0)
 #noise1= rnorm(length(t),mean=0,sd=1)  #constant noise level
@@ -120,7 +121,7 @@ dataList= list(
 )
 
 jagMod= jags.model(file=textConnection(modStr),data=dataList,n.chains=3)  
-cS= coda.samples(model=jagMod,variable.names = c('b0','b1','b2','t0'),n.iter=10000)
+cS= coda.samples(model=jagMod,variable.names = c('b0','b1','b2','t0'),n.iter=20000)
 
 #diagnostics
 for(i in 1:length(varnames(cS))){
@@ -153,8 +154,9 @@ plot(DF1$b1,DF1$b2,col='skyblue')
 ## Rate constants different from 0 (evaluate sensitivity)
 ```{R}
 a0=2
-t= 0:40 #match the actual data: 1 measurement per year for 40 years
-t0= 25
+t_orig= 1990:2019 #match the actual data: 1 measurement per year for 30 years
+t= t_orig-min(t_orig)
+t0= 20
 coefDF= expand.grid(a1=c(0.01,0.1,1), a2=c(-.01,-.1,-0.5))   #a1>0, a2<0
 
 
@@ -171,16 +173,9 @@ for(i in 1:dim(coefDF)[1]){
   y[y<0]= 0   #make sure no negative values
   plot(t,y,ylim=c(0,1.1*max(y)),main=paste('b1:',a1,', b2:',a2)) #change naming: 'a' are simulated, 'b' estimated params
   
-  DF1= twoLine_fit(t,y)
-  
-  HDIlower_b1= HDIofMCMC(DF1$b1,credMass=.95)[1]  #lower bound of HDI -> diff. from 0?
-  b1_correct= ifelse(a1>0 & HDIlower_b1>0 | a1==0 & HDIlower_b1<=0,1,0) #b1 correctly classified
-  b1_relErr= abs(mean(DF1$b1)-a1)/abs(a1+1E3)  #relative error of mean estimate; w. flooring
-  HDIupper_b2= HDIofMCMC(DF1$b2,credMass=.95)[2]  #lower bound of HDI -> diff. from 0?
-  b2_correct= ifelse(a2<0 & HDIupper_b2<0 | a2==0 & HDIupper_b2>=0,1,0) #b2 correctly classified
-  b2_relErr= abs(mean(DF1$b2)-a2)/abs(a2+1E3)  #relative error of mean estimate
-  DF_result[i,3:6]= c(b1_correct,b2_correct,b1_relErr,b2_relErr)
-  
+  OUT= twoLine_fit(t_orig,y)
+  DF1= OUT[[1]]
+  DF_result[i,3:6]= OUT[[2]]
   
   lines(t, mean(DF1$b0) + mean(DF1$b1)*t + mean(DF1$b2) *ifelse(t>mean(DF1$t0),t-mean(DF1$t0),0), col='blue')
 }
@@ -214,11 +209,11 @@ choice and changing assumed variation will alter estimation power.
 ## At least one rate constant == 0 (evaluate selectivity)
 ```{R}
 a0=2
-t= 0:40 #match the actual data: 1 measurement per year for 40 years
+t= 0:30 #match the actual data: 1 measurement per year for 30 years
 t0= 25
 coefDF= data.frame(
-  a1= c(0, 0.,  0.01,0.1),
-  a2= c(0,-0.01,0,   0)
+  a1= c(0,0.01,0.01,0.1),
+  a2= c(0,-0.01,0,0)
 )   #a1>=0, a2<=0
 
 
@@ -235,15 +230,9 @@ for(i in 1:dim(coefDF)[1]){
   y[y<0]= 0   #make sure no negative values
   plot(t,y,ylim=c(0,1.1*max(y)),main=paste('b1:',a1,', b2:',a2)) #change naming: 'a' are simulated, 'b' estimated params
   
-  DF1= twoLine_fit(t,y)
-  
-  HDIlower_b1= HDIofMCMC(DF1$b1,credMass=.95)[1]  #lower bound of HDI -> diff. from 0?
-  b1_correct= ifelse(a1>0 & HDIlower_b1>0 | a1==0 & HDIlower_b1<=0,1,0) #b1 correctly classified
-  b1_relErr= abs(mean(DF1$b1)-a1)/abs(a1+1E3)  #relative error of mean estimate; w. flooring
-  HDIupper_b2= HDIofMCMC(DF1$b2,credMass=.95)[2]  #upper bound of HDI -> diff. from 0?
-  b2_correct= ifelse(a2<0 & HDIupper_b2<0 | a2==0 & HDIupper_b2>=0,1,0) #b2 correctly classified
-  b2_relErr= abs(mean(DF1$b2)-a2)/abs(a2+1E3)  #relative error of mean estimate
-  DF_result[i,3:6]= c(b1_correct,b2_correct,b1_relErr,b2_relErr)
+  OUT= twoLine_fit(t,y)
+  DF1= OUT[[1]]
+  DF_result[i,3:6]= OUT[[2]]
   
   lines(t, mean(DF1$b0) + mean(DF1$b1)*t + mean(DF1$b2) *ifelse(t>mean(DF1$t0),t-mean(DF1$t0),0), col='blue')
 }

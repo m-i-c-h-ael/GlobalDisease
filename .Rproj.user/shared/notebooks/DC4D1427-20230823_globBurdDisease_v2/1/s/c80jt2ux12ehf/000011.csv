@@ -1,5 +1,0 @@
-"0","ggplot(data=allTime_HTZ_asi,mapping=aes(x=year,y=val,group=location,color=location))+"
-"0","  geom_point()+"
-"0","  geom_line()+"
-"0","  facet_wrap(~cause,scales='free_y')+"
-"0","  guides(color='none')"

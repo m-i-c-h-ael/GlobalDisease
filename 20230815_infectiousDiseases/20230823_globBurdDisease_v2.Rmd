@@ -29,6 +29,7 @@ graphics.off()
 library('rjags')
 library('tidyverse')
 library('data.table')
+library('gplots')
 library('dtw')  #time series clustering
 source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
 ```
@@ -113,6 +114,75 @@ ggplot(data=allTime_HTZ_asi_norm,mapping=aes(x=year,y=val_maxNorm,group=location
   theme(axis.title.y= element_text('Normalized to highest incidence year'))+
   facet_wrap(~cause,scales='free_y')+
   guides(color='none')    
+```
+
+## Two-line model
+Fit a two-line model that assumes a process leading to increase and later process
+leading to decrease of death rate. See "20230905_twoLine_model.html/.Rmd" for
+evaluation of the model.
+Ignore Zika for now.
+Identify the cause-location combinations that fit a decrease in death rate != 0
+```{R}
+source('G:/My Drive/20230815_GlobBurdDisease/20230905_twoLine_fit.R')
+
+allTime_HT_asi= allTime_HTZ_asi[allTime_HTZ_asi$cause %in% c('HIV/AIDS','Tuberculosis'),]
+groupedDF= allTime_HT_asi %>%
+      group_by(location,cause) %>%
+      summarize(n()) 
+dim(groupedDF) #42 combinations
+head(allTime_HT_asi)
+
+DeathrateDown_DF= data.frame()
+for(i in 1:dim(groupedDF)[1]){
+  print(paste(i,'of',dim(groupedDF)[1]))
+  currDF= allTime_HT_asi[allTime_HT_asi$location==groupedDF$location[i] & 
+                        allTime_HT_asi$cause==groupedDF$cause[i] ,]
+  mcmcDF= twoLine_fit(t= currDF$year, y=currDF$val)
+  
+  HDIlower_b1= HDIofMCMC(mcmcDF$b1,credMass=.95)[1]  #lower bound of HDI -> greater than 0?
+  HDIupper_b2= HDIofMCMC(mcmcDF$b2,credMass=.95)[2]  #upper bound of HDI -> lower than 0?
+  if(HDIupper_b2<0){
+    DeathrateDown_DF= rbind.data.frame(DeathrateDown_DF,
+            c(as.character(groupedDF$location[i]),as.character(groupedDF$cause[i]),
+              as.numeric(median(mcmcDF$b1)),as.numeric(median(mcmcDF$b2)),
+              as.numeric(median(mcmcDF$t0))) )
+  }
+}
+colnames(DeathrateDown_DF)= c('location','cause','b1_median','b2_median','t_inflec_median')
+str(DeathrateDown_DF)
+dim(DeathrateDown_DF)
+```
+34 of the 42 location-cause combinations exhibit a decrease (in some cases after
+(initial increase) in death rate
+
+```{R}
+DeathrateDown_DF$b1_median= as.numeric(DeathrateDown_DF$b1_median)
+DeathrateDown_DF$b2_median= as.numeric(DeathrateDown_DF$b2_median)
+DeathrateDown_DF$t_inflec_median= as.numeric(DeathrateDown_DF$t_inflec_median)
+str(DeathrateDown_DF)
+
+for(i in 1:dim(DeathrateDown_DF)[1]){
+  print(
+  ggplot(data=allTime_HT_asi[allTime_HT_asi$location==DeathrateDown_DF$location[i] &
+                             allTime_HT_asi$cause==DeathrateDown_DF$cause[i],  ],
+         mapping=aes(x=year,y=val))+
+  geom_point()+
+  geom_line()+
+  #scale_y_continuous(limits=c(0,0.25))+
+  ggtitle(paste(DeathrateDown_DF$cause[i],'',DeathrateDown_DF$location[i]))
+  )
+}
+```
+```{R}
+summary(DeathrateDown_DF[,c(3,4)])
+heatmap.2(as.matrix(DeathrateDown_DF[,c(3,4)]),scale='none',Colv=FALSE,
+          dendrogram='row',
+          cexCol=1,srtCol=0)
+```
+
+```{R}
+allTime_HT_asi[allTime_HT_asi$location=='Eastern Sub-Saharan Africa' &
+                             allTime_HT_asi$cause=='HIV/AIDS', ]
 ```
 
 Work on one cause at a time; start with Tuberculosis

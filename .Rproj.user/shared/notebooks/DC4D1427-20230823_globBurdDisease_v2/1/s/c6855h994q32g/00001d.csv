@@ -1,17 +1,0 @@
-"0","rm(list=ls())"
-"0","cat('\014')"
-"1",""
-"0","graphics.off()"
-"0",""
-"0","library('rjags')"
-"0","library('tidyverse')"
-"0","library('data.table')"
-"0","library('dtw')  #time series clustering"
-"0","source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown"
-"1","
-*********************************************************************
-Kruschke, J. K. (2015). Doing Bayesian Data Analysis, Second Edition:
-A Tutorial with R, JAGS, and Stan. Academic Press / Elsevier.
-*********************************************************************
-
-"

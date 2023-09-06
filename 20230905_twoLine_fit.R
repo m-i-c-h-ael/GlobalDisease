@@ -1,6 +1,11 @@
 twoLine_fit= function(t, y){
   #fit combination of lines with slope>=0 starting at t=0 and line with slope<=0
    #starting at t>=0 to y
+  # source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
+  # today= gsub('-','',Sys.Date())
+  
+  t_orig= t
+  t= t_orig-min(t_orig)  #make sure t starts at 0
   
   modStr= 
   '
@@ -45,17 +50,18 @@ twoLine_fit= function(t, y){
 
   dataList= list( t= t, y= y, Ntotal= length(y) )
   
-  jagMod= jags.model(file=textConnection(modStr),data=dataList,n.chains=1,quiet=TRUE)  
-  cS= coda.samples(model=jagMod,variable.names = c('b0','b1','b2','t0'),n.iter=10000)
+  jagMod= jags.model(file=textConnection(modStr),data=dataList,n.chains=2,quiet=TRUE)  
+  cS= coda.samples(model=jagMod,variable.names = c('b0','b1','b2','t0'),n.iter=20000)
+  
+  # print("Diagnostic plots saved to file.")
+  # for(i in 1:length(varnames(cS))){
+  #   diagMCMC(codaObject= cS, parName=varnames(cS)[i],
+  #            saveName = paste(getwd(),'/plots/',today,'_diagPlots_',sep='') )
+  #   dev.off()
+  # }
   
   DF1= data.frame(cS[[1]])
-  HDIlower_b1= HDIofMCMC(DF1$b1,credMass=.95)[1]  #lower bound of HDI -> diff. from 0?
-  b1_correct= ifelse(a1>0 & HDIlower_b1>0 | a1==0 & HDIlower_b1<=0,1,0) #b1 correctly classified
-  b1_relErr= abs(mean(DF1$b1)-a1)/abs(a1+1E3)  #relative error of mean estimate; w. flooring
-  HDIupper_b2= HDIofMCMC(DF1$b2,credMass=.95)[2]  #lower bound of HDI -> diff. from 0?
-  b2_correct= ifelse(a2<0 & HDIupper_b2<0 | a2==0 & HDIupper_b2>=0,1,0) #b2 correctly classified
-  b2_relErr= abs(mean(DF1$b2)-a2)/abs(a2+1E3)  #relative error of mean estimate
+  DF1$t0 = DF1$t0+min(t_orig)
   
-  return( list(MCMC= DF1,
-               eval= c(b1_correct,b2_correct,b1_relErr,b2_relErr)) )
+  return( DF1 )
 }
