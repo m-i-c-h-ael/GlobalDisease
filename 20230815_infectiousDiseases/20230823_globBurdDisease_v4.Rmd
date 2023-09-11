@@ -23,6 +23,8 @@ rm(list=ls())
 cat('\014')
 graphics.off()
 
+wd= getwd()
+
 library('rjags')
 library('tidyverse')
 library('data.table')
@@ -87,7 +89,7 @@ hist(allTime_HTZ$val[allTime_HTZ$measure=='Prevalence'],main='Prevalence percent
 ```{R}
 allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
   group_by(measure,location,cause,disFac,year) %>%
-  summarize(val= mean(val)) )
+  summarize(val= mean(val),.group='drop') )
 head(allTime_HTZ_asi)
 dim(allTime_HTZ_asi)
 ```
@@ -116,7 +118,7 @@ Are there locations that did not have any case?
 ```{R}
 allTime_HTZ_asi_D_sums= allTime_HTZ_asi_D %>%
   group_by(location,cause) %>%
-  summarize(sumPerc= sum(val))
+  summarize(sumPerc= sum(val),.groups='drop')
 
 allTime_HTZ_asi_D_sums[allTime_HTZ_asi_D_sums$sumPerc==0,]
 ```
@@ -147,52 +149,68 @@ Identify the cause-location combinations that fit a decrease in death rate != 0
 source('G:/My Drive/20230815_GlobBurdDisease/20230905_twoLine_fit.R')
 
 allTime_HT_asi= allTime_HTZ_asi[allTime_HTZ_asi$cause %in% c('HIV/AIDS','Tuberculosis'),]
-allTime_HT_asi_D= allTime_HT_asi[allTime_HT_asi$measure=='Deaths',]
-groupedDF= allTime_HT_asi_D %>%
-      group_by(location,cause) %>%
-      summarize(n()) 
-dim(groupedDF) #42 combinations
-head(allTime_HT_asi_D)
+#allTime_HT_asi_D= allTime_HT_asi[allTime_HT_asi$measure=='Deaths',]
+groupedDF= allTime_HT_asi %>%
+      group_by(location,cause,measure) %>%
+      summarize(n(),.groups='drop') 
+dim(groupedDF) #126 combinations
+head(allTime_HT_asi)
 
-if(! file.exists('G:/My Drive/20230815_GlobBurdDisease/20230823_Deaths_HTZ_21reg_MF_5year/DeathRateDown.csv')){ #execute only if not yet done
-  DeathrateDown_DF= data.frame()
+if(! file.exists('G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv')){ #execute only if not yet done
+  MCMCcoefs_DF= data.frame( matrix(NA,nrow=dim(groupedDF)[1],ncol=7))
+  colnames(MCMCcoefs_DF)= c('location','cause','measure',
+                            'b0_median','b1_median','b2_median','t_inflec_median')
+  MCMCcoefs_DF$location <- factor(MCMCcoefs_DF$location, levels = levels(groupedDF$location))
+  MCMCcoefs_DF$cause <- factor(MCMCcoefs_DF$cause, levels = levels(groupedDF$cause))
+  MCMCcoefs_DF$measure <- factor(MCMCcoefs_DF$measure, levels = levels(groupedDF$measure))
+
   for(i in 1:dim(groupedDF)[1]){
     print(paste(i,'of',dim(groupedDF)[1]))
     currDF= allTime_HT_asi[allTime_HT_asi$location==groupedDF$location[i] & 
-                          allTime_HT_asi$cause==groupedDF$cause[i] ,]
+                          allTime_HT_asi$cause==groupedDF$cause[i] &
+                          allTime_HT_asi$measure==groupedDF$measure[i]  ,]
     mcmcDF= twoLine_fit(t= currDF$year, y=currDF$val)
     
-    HDIlower_b1= HDIofMCMC(mcmcDF$b1,credMass=.95)[1]  #lower bound of HDI -> greater than 0?
-    HDIupper_b2= HDIofMCMC(mcmcDF$b2,credMass=.95)[2]  #upper bound of HDI -> lower than 0?
-    if(HDIupper_b2<0){
-      DeathrateDown_DF= rbind.data.frame(DeathrateDown_DF,
-              c(as.character(groupedDF$location[i]),as.character(groupedDF$cause[i]),
-                median(mcmcDF$b0),median(mcmcDF$b1),median(mcmcDF$b2),
-                median(mcmcDF$t0)) )
-    }
+    HDIlower_b1= HDIofMCMC(mcmcDF$b1,credMass=.80)[1]  #lower bound of HDI -> greater than 0?
+    HDIupper_b2= HDIofMCMC(mcmcDF$b2,credMass=.80)[2]  #upper bound of HDI -> lower than 0?
+    # ! I use 80%, rather than 95% credibility intervals; while individual cases
+     #may be incorrectly classified, overall trends should be correct; a high false-negative
+     #rate needs to be avoided
+    #Analysis could be extended by cases cross-informing each other (e.g. countries from same
+     #region)
+    
+    MCMCcoefs_DF$location[i]= groupedDF$location[i]
+    MCMCcoefs_DF$cause[i]= groupedDF$cause[i]
+    MCMCcoefs_DF$measure[i]= groupedDF$measure[i]
+    MCMCcoefs_DF$b0_median[i]= median(mcmcDF$b0)
+    #only store rates if confidently different from 0
+    MCMCcoefs_DF$b1_median[i]= ifelse(HDIlower_b1>0,median(mcmcDF$b1),NA) 
+    MCMCcoefs_DF$b2_median[i]= ifelse(HDIupper_b2<0,median(mcmcDF$b2),NA)
+    #only store inflection point if both rates confidently different from 0
+    MCMCcoefs_DF$t_inflec_median[i]= 
+      ifelse(HDIlower_b1>0 & HDIupper_b2<0,median(mcmcDF$t0),NA)
   }
-  colnames(DeathrateDown_DF)= c('location','cause','b0_median','b1_median','b2_median','t_inflec_median')
   
   # write output so you do not need to run this code every time
-  write.csv(DeathrateDown_DF,
-            'G:/My Drive/20230815_GlobBurdDisease/20230823_Deaths_HTZ_21reg_MF_5year/DeathRateDown.csv',
+  write.csv(MCMCcoefs_DF,
+            'G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv',
             row.names = FALSE)
 } else {
-  DeathrateDown_DF= read.csv(
-            'G:/My Drive/20230815_GlobBurdDisease/20230823_Deaths_HTZ_21reg_MF_5year/DeathRateDown.csv')
+  MCMCcoefs_DF= read.csv('G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv',
+                         stringsAsFactors=TRUE)
 }
-str(DeathrateDown_DF)
-dim(DeathrateDown_DF)
+str(MCMCcoefs_DF)
+dim(MCMCcoefs_DF)
 ```
 34 of the 42 location-cause combinations exhibit a decrease (in some cases after
 (initial increase) in death rate
 
 ```{R}
-DeathrateDown_DF$b0_median= as.numeric(DeathrateDown_DF$b0_median)
-DeathrateDown_DF$b1_median= as.numeric(DeathrateDown_DF$b1_median)
-DeathrateDown_DF$b2_median= as.numeric(DeathrateDown_DF$b2_median)
-DeathrateDown_DF$t_inflec_median= as.numeric(DeathrateDown_DF$t_inflec_median)
-str(DeathrateDown_DF)
+MCMCcoefs_DF$b0_median= as.numeric(MCMCcoefs_DF$b0_median)
+MCMCcoefs_DF$b1_median= as.numeric(MCMCcoefs_DF$b1_median)
+MCMCcoefs_DF$b2_median= as.numeric(MCMCcoefs_DF$b2_median)
+MCMCcoefs_DF$t_inflec_median= as.numeric(MCMCcoefs_DF$t_inflec_median)
+str(MCMCcoefs_DF)
 
 ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
          mapping=aes(x=year,y=val,group=measure,color=measure))+
@@ -217,17 +235,6 @@ leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/A
                           geom_line())
 as_ggplot(leg)
 
-# for(i in 1:dim(DeathrateDown_DF)[1]){
-#   print(
-#   ggplot(data=allTime_HT_asi[allTime_HT_asi$location==DeathrateDown_DF$location[i] &
-#                              allTime_HT_asi$cause==DeathrateDown_DF$cause[i],  ],
-#          mapping=aes(x=year,y=val,group=measure,color=measure))+
-#   geom_point()+
-#   geom_line()+
-#   #scale_y_continuous(limits=c(0,0.25))+
-#   ggtitle(paste(DeathrateDown_DF$cause[i],'',DeathrateDown_DF$location[i]))
-#   )
-# }
 ```
 Observations:
  
@@ -250,63 +257,81 @@ Observations:
   *there appears to be pos. correlation between prevalence and death rate, but with exceptions
    (e.g. countries with high prevalence and very low deaths) -> follow up on
 
+-------
+How meaningful are prevalence (and incidence) rates? Possible scenarios:
+ *prevalence is tested in random sample; death rates should also be from
+  random samples or all deaths recorded
+ *all serious cases of the disease (the ones that may lead to death) are recorded
+  ->probably true for countries with decent healthcare system
+ *for each death it is determined if it was due to the cause of interest ->
+  depends on environment (e.g. autopsies at unknown cause of death?) and disease
+  manifestation (obvious signs of the disease?)
+--------
+
 ## Summary of dynamics
 Summarize the dynamics via coefficients b0 (level around 1990), b1 (increase rate),
 b2 (decline rate) and t0 (inflection point)
 [So far, I only plot entries with declining death rate, but it may be better to
  plot all and indicate value as missing if not confidently different from 0]
 ```{R}
-summary(DeathrateDown_DF[,3:6])
-str(DeathrateDown_DF)
+MCMCcoefs_DF$loc_cause= paste(MCMCcoefs_DF$location,MCMCcoefs_DF$cause,sep=', ')
+str(MCMCcoefs_DF)
 
-#manually sorted
-DeathrateDown_DF_sort= DeathrateDown_DF[
-  order(DeathrateDown_DF$t_inflec_median,DeathrateDown_DF$b2_median),]
-DeathrateDown_DF_sort$location= as.factor(DeathrateDown_DF_sort$location)
-DeathrateDown_DF_sort$cause= as.factor(DeathrateDown_DF_sort$cause)
+#pivot:
+MCMCcoefs_wide= pivot_wider(data=MCMCcoefs_DF,id_cols=c('loc_cause','location','cause'),
+            names_from = c('measure'),
+            values_from=c('b0_median','b1_median','b2_median','t_inflec_median'))
 
-DrD= DeathrateDown_DF_sort[DeathrateDown_DF_sort$cause=='HIV/AIDS',]
+#manually sorted: 
+MCMCcoefs_DF_NA= MCMCcoefs_wide[is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #no inflection point
+MCMCcoefs_DF_noNA= MCMCcoefs_wide[!is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #with inflection point
 
-DrD_melt= melt(DrD,id.vars='location',measure.vars=c('b0_median','b1_median','b2_median','t_inflec_median'))
+#out of the data that do not have inflection year, get the ones that have decline
+MCMCcoefs_DF_NA_decl= MCMCcoefs_DF_NA[!is.na(MCMCcoefs_DF_NA$b2_median_Deaths),]
+MCMCcoefs_DF_NA_nodecl= MCMCcoefs_DF_NA[is.na(MCMCcoefs_DF_NA$b2_median_Deaths),]
+
+#sort data with declining death rate (but no inflection) by decline of death rate
+ord1= order(MCMCcoefs_DF_NA_decl$b2_median_Deaths)
+#sort data with inflection by inflection year
+ord2= order(MCMCcoefs_DF_noNA$t_inflec_median_Deaths) + max(ord1) #start after ord1
+#sort data without declining death rate by increase in death rate
+ord3= order(MCMCcoefs_DF_NA_nodecl$b1_median_Deaths) + max(ord2) #start after ord2
+
+#order factor levels of 'loc_cause'
+MCMCcoefs_patchw= rbind.data.frame(MCMCcoefs_DF_NA_decl,MCMCcoefs_DF_noNA,MCMCcoefs_DF_NA_nodecl)
+ord= c(ord1,ord2,ord3)
+MCMCcoefs_patchw$loc_cause= factor(MCMCcoefs_patchw$loc_cause,ordered=TRUE,
+           levels= MCMCcoefs_patchw$loc_cause[ord])
+
+DrD_melt= melt(MCMCcoefs_patchw,id.vars= c('loc_cause','location','cause'),
+    measure.vars=
+      c('b0_median_Deaths','b1_median_Deaths','b2_median_Deaths','t_inflec_median_Deaths',
+        'b0_median_Prevalence','b1_median_Prevalence',
+        'b2_median_Prevalence'  ))
+ #drop Incidence (very low):'b0_median_Incidence', 'b1_median_Incidence','b2_median_Incidence','t_inflec_median_Incidence'
+ #drop inflection of prevalence (very few observed): ,'t_inflec_median_Prevalence'
 str(DrD_melt)
 
 DrD_melt$coefType= rep('rate',dim(DrD_melt)[1])
-DrD_melt$coefType[DrD_melt$variable=='t_inflec_median']= 'year'
+DrD_melt$coefType[DrD_melt$variable %in% c('b0_median_Deaths',
+                  'b0_median_Prevalence','b0_median_Incidence')]= 'basel.'
+DrD_melt$coefType[DrD_melt$variable %in% c('t_inflec_median_Deaths',
+                  't_inflec_median_Prevalence','t_inflec_median_Incidence')]= 'year'
 head(DrD_melt)
 
-#split into two DFs
-# DrD_rates= DrD_melt[DrD_melt$coefType=='rate',]
-# DrD_rates$variable= factor(DrD_rates$variable,
-#         levels=c('b0_median','b1_median','b2_median'))
-# DrD_year= DrD_melt[DrD_melt$coefType=='year',]
-# DrD_year$variable= factor(DrD_year$variable,levels='year')
-
 ggplot()+
-  geom_tile(data=DrD_melt[DrD_melt$coefType=='rate',],aes(x=variable,y=location,fill=value))+
-  scale_fill_distiller(type = "seq", palette = "Greens", guide = guide_colorbar(title.position = "top")) +
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='rate',],aes(x=variable,y=loc_cause,fill=value))+
+  scale_fill_distiller(type = "seq", palette = "RdBu", guide = guide_colorbar(title.position = "top")) +
   ggnewscale::new_scale_fill() +
-  geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=location,fill=value))+
+  #geom_tile(data=DrD_melt[DrD_melt$coefType=='basel.',],aes(x=variable,y=loc_cause,fill=value))+
+  #scale_fill_distiller(type = "seq", palette = "Blues", guide=guide_colorbar(title.position = "top")) +
+  #ggnewscale::new_scale_fill() +
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=loc_cause,fill=value))+
   scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top")) +
+  theme(axis.text.x=element_text(angle=90))+
   facet_grid(.~coefType, scales = "free_x", space = "free_x")
 
-heatmap.2(as.matrix(DeathrateDown_DF_sort[,3:6]),
-          scale='none', #'column',  #
-          breads= seq(1990,2019,5),
-          Colv=FALSE, Rowv=FALSE,    #no re-ordering
-          dendrogram='none', #'row', 
-          labRow=DeathrateDown_DF$location, 
-          RowSideColors = c('red','blue')[as.factor(DeathrateDown_DF$cause)],
-          cexCol=1,srtCol=0)
 
-
-#automatically sorted
-heatmap.2(as.matrix(DeathrateDown_DF[,3:6]),
-          scale='column', #'none',
-          Colv=FALSE,
-          dendrogram='row', 
-          labRow=DeathrateDown_DF$location, 
-          RowSideColors = c('red','blue')[as.factor(DeathrateDown_DF$cause)],
-          cexCol=1,srtCol=0)
 ```
 
 ```{R}

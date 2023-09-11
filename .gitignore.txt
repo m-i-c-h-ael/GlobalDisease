@@ -1,4 +1,0 @@
-IHME*
-*/old
-*.log
-*.tex

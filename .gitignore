@@ -1,3 +1,7 @@
+IHME*
+*/old
+*.log
+*.tex
 .Rproj.user
 .Rhistory
 .RData
