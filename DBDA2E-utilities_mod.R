@@ -10,7 +10,7 @@
 
 bookInfo = "Kruschke, J. K. (2015). Doing Bayesian Data Analysis, Second Edition:\nA Tutorial with R, JAGS, and Stan. Academic Press / Elsevier."
 bannerBreak = "\n*********************************************************************\n"
-cat(paste0(bannerBreak,bookInfo,bannerBreak,"\n"))
+#cat(paste0(bannerBreak,bookInfo,bannerBreak,"\n"))
 
 #------------------------------------------------------------------------------
 # Check that required packages are installed:
