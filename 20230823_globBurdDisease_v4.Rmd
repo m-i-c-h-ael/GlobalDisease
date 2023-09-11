@@ -89,7 +89,7 @@ hist(allTime_HTZ$val[allTime_HTZ$measure=='Prevalence'],main='Prevalence percent
 ```{R}
 allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
   group_by(measure,location,cause,disFac,year) %>%
-  summarize(val= mean(val),.group='drop') )
+  summarize(val= mean(val),.groups='drop') )
 head(allTime_HTZ_asi)
 dim(allTime_HTZ_asi)
 ```

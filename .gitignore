@@ -1,7 +1,12 @@
 IHME*
+!IHME-GBD_2019_DATA-afd4b08e-1.csv
+!IHME-GBD_2019_DATA-cacc055a-1.csv
 */old
 *.log
 *.tex
+20230815_infectiousDiseases
+20230905_twoLine_model_files
+plots
 .Rproj.user
 .Rhistory
 .RData
