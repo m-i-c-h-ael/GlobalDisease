@@ -1,6 +1,8 @@
 ---
 title: "20230816_globBurdDisease"
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 date: "2023-08-16"
 ---
 
@@ -17,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
  regions is used; The file only contains data on HIV, Tuberculosis and Zika virus; data are
  from male and female (but not "both"); ages are largely in 5 year intervals
 
-Clean and load libraries
+## Clean and load libraries
 ```{R}
 rm(list=ls())
 cat('\014')
@@ -25,26 +27,29 @@ graphics.off()
 
 wd= getwd()
 
+suppressWarnings({      #no warnings to avoid cluttering Knit
 library('rjags')
 library('tidyverse')
 library('data.table')
 library('gplots')
 library('stringr')
 library('reshape2')
+library('zoo')
 library('ggpubr')
 library('ggnewscale')
 library('dtw')  #time series clustering
-source('G:/My Drive/20230815_GlobBurdDisease/DBDA2E-utilities_mod.R')  #modified to fit markdown
+source('./DBDA2E-utilities_mod.R')  #modified to fit markdown
+})  
 ```
 
-## Data import
+## Data import and cleaning
 Obtain a file that contains all years only for "Tuberculosis","HIV/AIDS","Zika virus"
 ```{R}
-allTime_HTZ_Deaths= read.csv('G:/My Drive/20230815_GlobBurdDisease/20230823_Deaths_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-afd4b08e-1.csv',stringsAsFactors = TRUE)   #HTZ= "Tuberculosis","HIV/AIDS","Zika virus"
+allTime_HTZ_Deaths= read.csv('./20230823_Deaths_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-afd4b08e-1.csv',stringsAsFactors = TRUE)   #HTZ= "Tuberculosis","HIV/AIDS","Zika virus"
 #limit to metric== 'Percent' and remove 'Number'
 allTime_HTZ_Deaths= allTime_HTZ_Deaths[allTime_HTZ_Deaths$metric=='Percent',]
 
-allTime_HTZ_PrevInci= read.csv('G:/My Drive/20230815_GlobBurdDisease/20230907_PrevInci_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-cacc055a-1.csv',stringsAsFactors = TRUE)
+allTime_HTZ_PrevInci= read.csv('./20230907_PrevInci_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-cacc055a-1.csv',stringsAsFactors = TRUE)
 
 allTime_HTZ= rbind.data.frame(allTime_HTZ_Deaths,allTime_HTZ_PrevInci)
 ```
@@ -61,17 +66,17 @@ levels(allTime_HTZ$age)
 unique(allTime_HTZ$age[ str_detect(allTime_HTZ$age,'[0-9]+-[0-9]+ years')] ) #check
 allTime_HTZ= allTime_HTZ[ str_detect(allTime_HTZ$age,'[0-9]+-[0-9]+ years'), ]
 
+#all location - cause combinations should have 30 years
 cause_location_tab= allTime_HTZ %>%
   filter(measure=='Deaths' & sex=='Male' & age=='30-34 years' ) %>%
   group_by(cause,location) %>%
-  summarise(count= n_distinct(year))
+  summarise(count= n_distinct(year),.groups='drop')
+
+all(cause_location_tab$count == 30)
 
 dim(allTime_HTZ)
 head(allTime_HTZ)
 str(allTime_HTZ)
-
-#all location - cause combinations should have 30 years
-all(cause_location_tab$count == 30)
 ```
 
 Encode 'cause' as number to allow indexing by it
@@ -80,12 +85,17 @@ allTime_HTZ$disFac= as.numeric(as.factor(allTime_HTZ$cause))
 dim(allTime_HTZ)
 summary(allTime_HTZ$val)
 summary(allTime_HTZ$year)
+```
+
+## Overview of death and prevalence rates
+```{R}
 hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],main='Death percentages - all margins')
 hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],xlim=c(0,0.1),breaks= 200,main='Zoom: Death percentages - all margins')
 hist(allTime_HTZ$val[allTime_HTZ$measure=='Prevalence'],main='Prevalence percentages - all margins')
 ```
+
 ## Age- & sex- independent analysis
- Average percentages over all age groups for location-cause(disFac)-year combination
+Simplify data: Average percentages over all age groups for location-cause(disFac)-year combination
 ```{R}
 allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
   group_by(measure,location,cause,disFac,year) %>%
@@ -93,6 +103,7 @@ allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
 head(allTime_HTZ_asi)
 dim(allTime_HTZ_asi)
 ```
+
 # Analysis of percentage of deaths
 ```{R}
 allTime_HTZ_asi_D= allTime_HTZ_asi %>%
@@ -107,14 +118,14 @@ ggplot(data=allTime_HTZ_asi_D,mapping=aes(x=year,y=val,group=location,color=loca
   facet_wrap(~cause,scales='free_y')+
   guides(color='none')
 ```
-First impression:
-*HIV rises to about year 15, then steady decline; need to check if that is true for all countries
- or just impression from high-incidence ones
-*some HIV outliers that need to be investigated
-*In most countries, tuberculosis is steadily declining, but in some there appears to be outbreak
-*Zika is only observed at high prevalence after about 25 years; huge variation between countries
 
-Are there locations that did not have any case?
+First impression:
+*For countries with highest HIV/AIDS death rates: HIV/AIDS death rates rises till about year 2000-2005, then steady decline
+*some HIV outliers that need to be investigated: data entry error or really some factor that lowered death rates
+*In most countries, tuberculosis is steadily declining, but in some there appears to be outbreak
+*Zika is only observed in recent years and has high death rates only in few locations
+
+Are there locations that did not have any Zika case?
 ```{R}
 allTime_HTZ_asi_D_sums= allTime_HTZ_asi_D %>%
   group_by(location,cause) %>%
@@ -139,14 +150,33 @@ ggplot(data=allTime_HTZ_asi_D_norm,mapping=aes(x=year,y=val_maxNorm,group=locati
   guides(color='none')    
 ```
 
-## Two-line model
-Fit a two-line model that assumes a process leading to increase and later process
-leading to decrease of death rate. See "20230905_twoLine_model.html/.Rmd" for
-evaluation of the model.
-Ignore Zika for now.
-Identify the cause-location combinations that fit a decrease in death rate != 0
+## To be added: Outlier investigation
+For some points it is obvious that they are outliers as they break the otherwise "smooth appearance" of the curve; In most cases these may just be data entry problems, but in some something might have occurred that lead to a vastly different death rate.
+To find outliers, check the deviation of each actual point from the average of two points to the left and two to the right.
+
 ```{R}
-source('G:/My Drive/20230815_GlobBurdDisease/20230905_twoLine_fit.R')
+
+a= c(2,0,1,2,6)
+zoo::rollapply(a,width=5,FUN=function(x){mean(c(x[1],x[2],x[4],x[5]))},align='center')
+```
+
+The time behavior of death rates for HIV/AIDS and Tuberculosis differs widely between locations; 
+1. I will first summarize curves into a few parameters. This will facilitate comparison and processing more data
+2. I will cluster curves based on the full data
+
+Questions:
+* How do death rates relate to prevalence/incidence rate of the same disease at the same location?
+* Do countries within the same region behave similarly? Which are outliers?
+* Can I find common features among groups with similar curves?
+
+## Two-line model
+Fit a "two-line model" that fits an increasing and a decreasing slope.  Both assume 0th-order kinetics; increase starts (with baseline) from first time point (1990); decrease can start at any time point from 1990. See "20230905_twoLine_model.html/.Rmd" for evaluation of the model.
+Fit parameters b0 (baseline at 1990), b1 (increasing slope), b2 (decreasing slope) and t0 (time point at which decrease starts) via a Bayesian model. Report b1 and b2 if their 80% highest confidence interval excludes 0 and t0 if this is the case for both b1 and b2.
+
+Ignore Zika from this point on.
+
+```{R}
+source('./20230905_twoLine_fit.R')
 
 allTime_HT_asi= allTime_HTZ_asi[allTime_HTZ_asi$cause %in% c('HIV/AIDS','Tuberculosis'),]
 #allTime_HT_asi_D= allTime_HT_asi[allTime_HT_asi$measure=='Deaths',]
@@ -156,7 +186,7 @@ groupedDF= allTime_HT_asi %>%
 dim(groupedDF) #126 combinations
 head(allTime_HT_asi)
 
-if(! file.exists('G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv')){ #execute only if not yet done
+if(! file.exists('./20230908_MCMCcoefs.csv')){ #execute only if not yet done
   MCMCcoefs_DF= data.frame( matrix(NA,nrow=dim(groupedDF)[1],ncol=7))
   colnames(MCMCcoefs_DF)= c('location','cause','measure',
                             'b0_median','b1_median','b2_median','t_inflec_median')
@@ -192,12 +222,9 @@ if(! file.exists('G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv'))
   }
   
   # write output so you do not need to run this code every time
-  write.csv(MCMCcoefs_DF,
-            'G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv',
-            row.names = FALSE)
+  write.csv(MCMCcoefs_DF, './20230908_MCMCcoefs.csv', row.names = FALSE)
 } else {
-  MCMCcoefs_DF= read.csv('G:/My Drive/20230815_GlobBurdDisease/20230908_MCMCcoefs.csv',
-                         stringsAsFactors=TRUE)
+  MCMCcoefs_DF= read.csv('./20230908_MCMCcoefs.csv', stringsAsFactors=TRUE)
 }
 str(MCMCcoefs_DF)
 dim(MCMCcoefs_DF)
@@ -205,7 +232,12 @@ dim(MCMCcoefs_DF)
 34 of the 42 location-cause combinations exhibit a decrease (in some cases after
 (initial increase) in death rate
 
-```{R}
+```{R, out.width=c('80%','80%','50%'),out.height=c('80%','80%','50%'),fig.align='center', fig.show='hold'}
+#
+#out.width=c('500px','300px','500px')
+#,out.width=c('100%','100%','100%')
+#R, fig.width=10, fig.height=7
+
 MCMCcoefs_DF$b0_median= as.numeric(MCMCcoefs_DF$b0_median)
 MCMCcoefs_DF$b1_median= as.numeric(MCMCcoefs_DF$b1_median)
 MCMCcoefs_DF$b2_median= as.numeric(MCMCcoefs_DF$b2_median)
@@ -217,7 +249,7 @@ ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
   geom_line()+
   ggtitle('HIV/AIDS')+
   guides(color="none")+
-  facet_wrap(vars(location),ncol=7,scales='free_y')  #look at both fixed and free y
+  facet_wrap(vars(location),ncol=4,scales='free_y')  #look at both fixed and free y
 
 leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
                           mapping=aes(x=year,y=val,group=measure,color=measure))+
@@ -228,14 +260,15 @@ ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='Tuberculosis',  ],
   geom_line()+
   ggtitle('Tuberculosis')+
   guides(color="none")+
-  facet_wrap(vars(location),ncol=7)  #,scales='free_y' look at both fixed and free y
+  facet_wrap(vars(location),ncol=4,scales='free_y')  # look at both fixed and free y
+
 
 leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
                           mapping=aes(x=year,y=val,group=measure,color=measure))+
-                          geom_line())
+                          geom_line() )
 as_ggplot(leg)
-
 ```
+
 Observations:
  
  HIV/AIDS:
@@ -334,48 +367,43 @@ ggplot()+
 
 ```
 
+# Below: Work in progress: IGNORE for now! 
 ```{R}
-allTime_HT_asi[allTime_HT_asi$location=='Eastern Sub-Saharan Africa' &
-                             allTime_HT_asi$cause=='HIV/AIDS', ]
+# allTime_HT_asi[allTime_HT_asi$location=='Eastern Sub-Saharan Africa' &
+#                              allTime_HT_asi$cause=='HIV/AIDS', ]
 ```
 
 Work on one cause at a time; start with Tuberculosis
  most locations decrease steadily, but there seem to be 5 that increase, then decrease
 Perform clustering at max-normalized data; worry later about differences in absolute percentages
 ```{R}
-head(allTime_HTZ_asi_D_norm)
-
-allTime_HIV_asi_norm= allTime_HTZ_asi_D_norm[allTime_HTZ_asi_D_norm$cause=='HIV/AIDS',]
-HIV_wide= allTime_HIV_asi_norm %>%
-  mutate(year= as.factor(year)) %>%
-  select(location,year,val)%>%
-  pivot_wider(names_from= year,values_from= val)
-
-loc_labels= as.character(HIV_wide$location)
-HIV_mtx= as.matrix(HIV_wide[,2:dim(HIV_wide)[2]])
-
-#cluster timecourses
-distMtx= dist(HIV_mtx,method='dtw')  #"dynamic time warping"
-hc= hclust(distMtx,method='average')  #
-plot(hc)  #,labels=loc_labels
-
-#cut into three groups
-dendroInd= cutree(hc,k=3)
-allTime_HIV_asi_norm$dendGrp= dendroInd[match(allTime_HIV_asi_norm$location,loc_labels)]
-
-ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp ==1,], mapping=aes(x=year,y=val_maxNorm,color=location))+
-  geom_point()+
-  geom_line()+
-  coord_cartesian(ylim=c(0,1))+
-  theme(axis.title.y= element_text('Normalized to highest incidence year'))
-
-ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp %in% c(2,3),], mapping=aes(x=year,y=val_maxNorm,color=location))+
-  geom_point()+
-  geom_line()+
-  coord_cartesian(ylim=c(0,1))+
-  theme(axis.title.y= element_text('Normalized to highest incidence year'))
-
-# ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp==3,], mapping=aes(x=year,y=val_maxNorm,color=location))+
+# head(allTime_HTZ_asi_D_norm)
+# 
+# allTime_HIV_asi_norm= allTime_HTZ_asi_D_norm[allTime_HTZ_asi_D_norm$cause=='HIV/AIDS',]
+# HIV_wide= allTime_HIV_asi_norm %>%
+#   mutate(year= as.factor(year)) %>%
+#   select(location,year,val)%>%
+#   pivot_wider(names_from= year,values_from= val)
+# 
+# loc_labels= as.character(HIV_wide$location)
+# HIV_mtx= as.matrix(HIV_wide[,2:dim(HIV_wide)[2]])
+# 
+# #cluster timecourses
+# distMtx= dist(HIV_mtx,method='dtw')  #"dynamic time warping"
+# hc= hclust(distMtx,method='average')  #
+# plot(hc)  #,labels=loc_labels
+# 
+# #cut into three groups
+# dendroInd= cutree(hc,k=3)
+# allTime_HIV_asi_norm$dendGrp= dendroInd[match(allTime_HIV_asi_norm$location,loc_labels)]
+# 
+# ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp ==1,], mapping=aes(x=year,y=val_maxNorm,color=location))+
+#   geom_point()+
+#   geom_line()+
+#   coord_cartesian(ylim=c(0,1))+
+#   theme(axis.title.y= element_text('Normalized to highest incidence year'))
+# 
+# ggplot(data=allTime_HIV_asi_norm[allTime_HIV_asi_norm$dendGrp %in% c(2,3),], mapping=aes(x=year,y=val_maxNorm,color=location))+
 #   geom_point()+
 #   geom_line()+
 #   coord_cartesian(ylim=c(0,1))+
@@ -401,50 +429,50 @@ Build model1:
  linear model of percentage vs year
   using t-distribution on slope
 ```{R}
-allTime_HTZ$year= allTime_HTZ$year-1990  #Set 1990 as "year 0";
-
-mod1Str='
-model{
-  for(i in 1:Ntotal){   #loop over all observations
-    pc[i] ~ dt(b0[d[i]] + b1[d[i]]*year[i], sigma, nu )   #coefficients specific to disease
-  }
-  for(j in 1:Ndis){
-    b0[j] ~ dunif(1/1000,1000)
-    b1[j] ~ dnorm(0, 2^2)   #sd= 1/2
-  }
-  nuMin1 ~ dexp(1/29.0)
-  nu= nuMin1 +1
-  sigma~ dunif(0,1)
-}'
+# allTime_HTZ$year= allTime_HTZ$year-1990  #Set 1990 as "year 0";
+# 
+# mod1Str='
+# model{
+#   for(i in 1:Ntotal){   #loop over all observations
+#     pc[i] ~ dt(b0[d[i]] + b1[d[i]]*year[i], sigma, nu )   #coefficients specific to disease
+#   }
+#   for(j in 1:Ndis){
+#     b0[j] ~ dunif(1/1000,1000)
+#     b1[j] ~ dnorm(0, 2^2)   #sd= 1/2
+#   }
+#   nuMin1 ~ dexp(1/29.0)
+#   nu= nuMin1 +1
+#   sigma~ dunif(0,1)
+# }'
 ```
 MCMC for posteriors
 ```{R}
-# data1List= list(
-#   Ntotal= dim(data1)[1],
-#   Ndis= length(unique(data1$cause)),
-#   pc= data1$val,  #percentage
-#   d= data1$disFac,
-#   year= data1$year
+# # data1List= list(
+# #   Ntotal= dim(data1)[1],
+# #   Ndis= length(unique(data1$cause)),
+# #   pc= data1$val,  #percentage
+# #   d= data1$disFac,
+# #   year= data1$year
+# # )
+# 
+# redData1List= list(
+#   Ntotal= dim(redData)[1],
+#   Ndis= length(unique(redData$cause)),
+#   pc= redData$val,  #percentage
+#   d= redData$disFac,
+#   year= redData$year
 # )
-
-redData1List= list(
-  Ntotal= dim(redData)[1],
-  Ndis= length(unique(redData$cause)),
-  pc= redData$val,  #percentage
-  d= redData$disFac,
-  year= redData$year
-)
-
-jags1= jags.model(file=textConnection(mod1Str),data=redData1List,n.chains=3)
+# 
+# jags1= jags.model(file=textConnection(mod1Str),data=redData1List,n.chains=3)
 ```
 
 ```{R}
-cS1= coda.samples(model=jags1,variable.names=c('b0','b1','sigma','nu'),n.iter=10000)
+# cS1= coda.samples(model=jags1,variable.names=c('b0','b1','sigma','nu'),n.iter=10000)
 ```
 
 ```{R}
-for(i in 1:length(varnames(cS1))){
-  diagMCMC(codaObject= cS1,parName=varnames(cS1)[i]  )
-}
+# for(i in 1:length(varnames(cS1))){
+#   diagMCMC(codaObject= cS1,parName=varnames(cS1)[i]  )
+# }
 ```
 This does not produce good coefficient estimates. I probably need a different link function for data that are a percentage.
