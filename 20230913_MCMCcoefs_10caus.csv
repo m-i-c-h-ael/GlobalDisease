@@ -1,0 +1,568 @@
+"location","cause","measure","b0_median","b1_median","b2_median","t_inflec_median"
+"Andean Latin America","Diarrheal diseases","Deaths",0.0223331233067367,0,-0.00053750369653488,1990.98257784127
+"Andean Latin America","Diarrheal diseases","Prevalence",0.0167688863018009,0.000254465145216849,0,NA
+"Andean Latin America","Diarrheal diseases","Incidence",0.157365729167983,0.00214747718664692,0,NA
+"Andean Latin America","Falls","Deaths",0.0108808760471812,0.000102862117687172,0,NA
+"Andean Latin America","Falls","Prevalence",0.0500502628139844,0.00111618940099143,-0.000709755616320974,2002.84904200538
+"Andean Latin America","Falls","Incidence",0.00238302089617926,4.78199611046555e-05,-3.32228431127982e-05,2003.24875789627
+"Andean Latin America","Malaria","Deaths",0.00631438788025906,0,-0.000325675512242372,1993.43296779648
+"Andean Latin America","Malaria","Prevalence",0.00876464558516165,0,-0.000285782112525058,1990.61794914129
+"Andean Latin America","Malaria","Incidence",0.00404156344908509,0,-0.000172113293126027,1990.73687661585
+"Andean Latin America","Multiple sclerosis","Deaths",0.000181790306102027,5.08535653368447e-06,0,NA
+"Andean Latin America","Multiple sclerosis","Prevalence",6.7209755341713e-05,1.18495852760052e-06,-7.01439016615646e-07,2005.13373359049
+"Andean Latin America","Multiple sclerosis","Incidence",5.25244061747734e-07,2.49563027476289e-09,-2.84470856221929e-09,2005.55072793123
+"Andean Latin America","Pancreatic cancer","Deaths",0.00171359283650796,0.000359576811191705,-0.000254673431962982,2005.39238291765
+"Andean Latin America","Pancreatic cancer","Prevalence",2.96478061954596e-05,4.73276016150847e-06,-3.92370055136697e-06,2005.54732787916
+"Andean Latin America","Pancreatic cancer","Incidence",7.21489957097509e-06,9.59146945345721e-07,-8.98915291558396e-07,2005.56312288887
+"Andean Latin America","Protein-energy malnutrition","Deaths",0.0165787535727525,0,-0.00045539661280119,1997.50349286852
+"Andean Latin America","Protein-energy malnutrition","Prevalence",0.00859796023590982,0,-0.000109054477273697,2000.58400573995
+"Andean Latin America","Protein-energy malnutrition","Incidence",0.00129796729639331,0,-1.95764298220557e-05,1999.57422939958
+"Andean Latin America","Schistosomiasis","Deaths",0,0,0,NA
+"Andean Latin America","Schistosomiasis","Prevalence",0,0,0,NA
+"Andean Latin America","Schistosomiasis","Incidence",0,0,0,NA
+"Andean Latin America","Stroke","Deaths",0.0678037394087882,0,-0.000684889412462523,1991.24882311096
+"Andean Latin America","Stroke","Prevalence",0.0232432541349824,0,-0.000127695492683049,1990.78408856198
+"Andean Latin America","Stroke","Incidence",0.00043663116454984,0,-4.16293253953935e-06,1990.61732128557
+"Andean Latin America","Typhoid and paratyphoid","Deaths",4.28948109075292e-05,0,0,NA
+"Andean Latin America","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Andean Latin America","Typhoid and paratyphoid","Incidence",7.0719221313761e-06,0,-1.62636334536601e-07,1990.92680218003
+"Australasia","Diarrheal diseases","Deaths",0.000387561607405978,5.46064546134138e-05,-7.96558343208067e-05,2013.95969846713
+"Australasia","Diarrheal diseases","Prevalence",0.00539792081527438,8.14027448455051e-05,-5.68347735449423e-05,2007.9280680131
+"Australasia","Diarrheal diseases","Incidence",0.0671305653484314,0.000658156888478689,-0.000526828603674703,2006.27264377807
+"Australasia","Falls","Deaths",0.0068534235923069,0.000303024085627226,-0.000406947287235757,2014.73189239441
+"Australasia","Falls","Prevalence",0.223814473800096,0.00245854684408666,0,NA
+"Australasia","Falls","Incidence",0.0138172262087417,0.000230092568834975,0,NA
+"Australasia","Malaria","Deaths",0,0,0,NA
+"Australasia","Malaria","Prevalence",0,0,0,NA
+"Australasia","Malaria","Incidence",0,0,0,NA
+"Australasia","Multiple sclerosis","Deaths",0.00119068320311361,3.99016847374013e-05,-2.52367842334652e-05,2003.83184157211
+"Australasia","Multiple sclerosis","Prevalence",0.00046671079928404,2.41447780493197e-05,-2.36476902126259e-05,2002.23372710096
+"Australasia","Multiple sclerosis","Incidence",2.0316866044031e-06,5.96103292811029e-08,-5.95855696206285e-08,2002.52043969796
+"Australasia","Pancreatic cancer","Deaths",0.0096826288164006,0.000363400774128696,-0.000188313854993395,2012.66375694181
+"Australasia","Pancreatic cancer","Prevalence",0.000210123550475219,3.1165518298314e-06,0,NA
+"Australasia","Pancreatic cancer","Incidence",5.116775044728e-05,2.8987872538238e-07,0,NA
+"Australasia","Protein-energy malnutrition","Deaths",0.000304525810370242,1.53537929117087e-05,-1.57369284606324e-05,2000.48475860676
+"Australasia","Protein-energy malnutrition","Prevalence",0.00419179063401332,7.22385662037894e-05,-6.77536832990065e-05,2005.80780496612
+"Australasia","Protein-energy malnutrition","Incidence",0.00073414691636839,1.25847078851646e-05,-1.19964939854103e-05,2004.55287425845
+"Australasia","Schistosomiasis","Deaths",0,0,0,NA
+"Australasia","Schistosomiasis","Prevalence",0,0,0,NA
+"Australasia","Schistosomiasis","Incidence",0,0,0,NA
+"Australasia","Stroke","Deaths",0.057038132960589,0,-0.000812771860513831,1990.92180834676
+"Australasia","Stroke","Prevalence",0.0228426065045296,0,-0.000252863223346641,1990.59465990365
+"Australasia","Stroke","Incidence",0.000699102400845773,0,-1.25092862810155e-05,1990.8192977494
+"Australasia","Typhoid and paratyphoid","Deaths",6.67077773853824e-07,1.84054539100735e-08,0,NA
+"Australasia","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Australasia","Typhoid and paratyphoid","Incidence",1.90337422744785e-07,0,0,NA
+"Caribbean","Diarrheal diseases","Deaths",0.017802487228973,0,0,NA
+"Caribbean","Diarrheal diseases","Prevalence",0.0229141468386196,0.000342980468841506,-0.000248287627795165,1998.16802679393
+"Caribbean","Diarrheal diseases","Incidence",0.205011595751358,0.00236951576216289,-0.0014852502072566,1998.14216256545
+"Caribbean","Falls","Deaths",0.0103105881650259,0,0,NA
+"Caribbean","Falls","Prevalence",0.0776321524514738,0.00100157789440954,0,NA
+"Caribbean","Falls","Incidence",0.00399130633517501,5.85644451894646e-05,0,NA
+"Caribbean","Malaria","Deaths",0.0107919272831392,0,-0.000344479969789933,1999.08639852651
+"Caribbean","Malaria","Prevalence",0.00166097840363482,0,-0.000150387392660311,2009.8061525722
+"Caribbean","Malaria","Incidence",0.000985483489903099,0,-8.84739388406861e-05,2009.55558114181
+"Caribbean","Multiple sclerosis","Deaths",0.000304786654640977,3.72453680541018e-06,0,NA
+"Caribbean","Multiple sclerosis","Prevalence",0.000108187302263687,1.01635362834917e-06,-7.38653603558232e-07,2005.12213117902
+"Caribbean","Multiple sclerosis","Incidence",7.39737363049916e-07,3.60698572447198e-10,0,NA
+"Caribbean","Pancreatic cancer","Deaths",0.00139245692746493,0.000304531769903583,-0.000239620838785585,2002.82992399661
+"Caribbean","Pancreatic cancer","Prevalence",2.63307850552905e-05,5.74010456191334e-06,-4.91182894451492e-06,2002.51047670483
+"Caribbean","Pancreatic cancer","Incidence",5.85302196793247e-06,1.13480130501799e-06,-9.76887526530786e-07,2002.39998689491
+"Caribbean","Protein-energy malnutrition","Deaths",0.00917231100293869,0,-0.000159388214179907,1991.58882038451
+"Caribbean","Protein-energy malnutrition","Prevalence",0.00895357912417236,0,-3.41159047702612e-05,1996.49208068413
+"Caribbean","Protein-energy malnutrition","Incidence",0.00123700694664533,0,-6.910014846123e-06,1993.87952469556
+"Caribbean","Schistosomiasis","Deaths",9.42685235026347e-05,0,0,NA
+"Caribbean","Schistosomiasis","Prevalence",0.0333897937977195,0.000158305282826169,-0.000248563013379234,2000.57450406547
+"Caribbean","Schistosomiasis","Incidence",0,0,0,NA
+"Caribbean","Stroke","Deaths",0.0783124452410806,0,0,NA
+"Caribbean","Stroke","Prevalence",0.0239063745809002,0,0,NA
+"Caribbean","Stroke","Incidence",0.000528402958903925,0,-2.44051872347888e-06,1991.20559223546
+"Caribbean","Typhoid and paratyphoid","Deaths",0.000182300047526687,0,-3.00201902822162e-06,1991.94953181433
+"Caribbean","Typhoid and paratyphoid","Prevalence",1.48096041092713e-08,0,-7.1884760942336e-10,1991.95988707447
+"Caribbean","Typhoid and paratyphoid","Incidence",9.97335587851818e-06,0,-1.34471518769608e-07,1990.39656030106
+"Central Asia","Diarrheal diseases","Deaths",0.0103331580276115,0,-0.000297103937133068,1993.36004691469
+"Central Asia","Diarrheal diseases","Prevalence",0.00758169084319837,0.000129880014868212,0,NA
+"Central Asia","Diarrheal diseases","Incidence",0.125863883204611,0.00184537190167549,0,NA
+"Central Asia","Falls","Deaths",0.00987836959474358,0,0,NA
+"Central Asia","Falls","Prevalence",0.10603400954917,0,0,NA
+"Central Asia","Falls","Incidence",0.00627469951124847,0,0,NA
+"Central Asia","Malaria","Deaths",0.000679200060012408,0,-3.27592640355821e-05,1991.9170677476
+"Central Asia","Malaria","Prevalence",0.000968259574370019,0,-7.44993195914038e-05,2002.1845294475
+"Central Asia","Malaria","Incidence",0.00130230812368437,0,-5.79799648725926e-05,1990.86451410419
+"Central Asia","Multiple sclerosis","Deaths",0.000228173698019413,0,0,NA
+"Central Asia","Multiple sclerosis","Prevalence",0.000508149164632151,2.52401513215138e-06,-6.51576625511578e-06,2007.28849657322
+"Central Asia","Multiple sclerosis","Incidence",3.45286351563049e-06,0,-3.72110887646276e-08,2003.13470731854
+"Central Asia","Pancreatic cancer","Deaths",0.00162325958500298,0.000135630018348275,0,NA
+"Central Asia","Pancreatic cancer","Prevalence",3.91406650694051e-05,3.04473549997206e-06,0,NA
+"Central Asia","Pancreatic cancer","Incidence",1.48320280971636e-05,1.02116356839953e-06,0,NA
+"Central Asia","Protein-energy malnutrition","Deaths",0.000481936275616715,0,-7.24593721401328e-06,1990.73628227058
+"Central Asia","Protein-energy malnutrition","Prevalence",0.00565848597331835,2.22550360948374e-05,0,NA
+"Central Asia","Protein-energy malnutrition","Incidence",0.000995086377512923,6.20663224945584e-06,0,NA
+"Central Asia","Schistosomiasis","Deaths",5.01611792092214e-06,0,0,NA
+"Central Asia","Schistosomiasis","Prevalence",0,0,0,NA
+"Central Asia","Schistosomiasis","Incidence",0,0,0,NA
+"Central Asia","Stroke","Deaths",0.11170533812852,0.000311741945316144,-0.00131866231858018,2003.9948417303
+"Central Asia","Stroke","Prevalence",0.024631312718965,0,-0.00013929496755242,2006.73177187819
+"Central Asia","Stroke","Incidence",0.00158559881572275,8.47688524761805e-06,-3.28775626945218e-05,2003.07780637313
+"Central Asia","Typhoid and paratyphoid","Deaths",6.54297964859594e-05,0,-1.75655332938745e-06,1990.45723465295
+"Central Asia","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Central Asia","Typhoid and paratyphoid","Incidence",1.88782297523216e-06,0,-3.73918698109315e-08,1993.30015190222
+"Central Europe","Diarrheal diseases","Deaths",0.000770481213201245,1.98434750750928e-05,0,NA
+"Central Europe","Diarrheal diseases","Prevalence",0.0130528769937963,0,-3.23946239451157e-05,1990.86832682861
+"Central Europe","Diarrheal diseases","Incidence",0.166979142405474,0,-0.00044267843632946,1990.43634822251
+"Central Europe","Falls","Deaths",0.0174994061535505,0,-6.19126226675771e-05,1991.62548823439
+"Central Europe","Falls","Prevalence",0.234550733239852,0,0,NA
+"Central Europe","Falls","Incidence",0.0147385014614347,0,0,NA
+"Central Europe","Malaria","Deaths",0,0,0,NA
+"Central Europe","Malaria","Prevalence",0,0,0,NA
+"Central Europe","Malaria","Incidence",0,0,0,NA
+"Central Europe","Multiple sclerosis","Deaths",0.00165956706852639,1.36548010244059e-05,0,NA
+"Central Europe","Multiple sclerosis","Prevalence",0.000437083958187708,8.95705776468562e-07,0,NA
+"Central Europe","Multiple sclerosis","Incidence",2.76250532961314e-06,0,-2.01429542974237e-08,2011.10242769045
+"Central Europe","Pancreatic cancer","Deaths",0.00738223334582289,0.000264025747368357,0,NA
+"Central Europe","Pancreatic cancer","Prevalence",0.000158648604634312,2.40606538391529e-06,-1.31169616070286e-06,2010.24378274418
+"Central Europe","Pancreatic cancer","Incidence",4.79432061981553e-05,6.50382350613567e-07,-3.82256154961389e-07,2010.64195090207
+"Central Europe","Protein-energy malnutrition","Deaths",0.000238857401412725,1.42309792228035e-05,0,NA
+"Central Europe","Protein-energy malnutrition","Prevalence",0.00519906223274266,8.8513274774751e-05,0,NA
+"Central Europe","Protein-energy malnutrition","Incidence",0.000860400713316442,1.92413973713249e-05,0,NA
+"Central Europe","Schistosomiasis","Deaths",1.32951998875962e-08,0,0,NA
+"Central Europe","Schistosomiasis","Prevalence",0,0,0,NA
+"Central Europe","Schistosomiasis","Incidence",0,0,0,NA
+"Central Europe","Stroke","Deaths",0.111306026651049,0,-0.0014950677129778,2000.48768942909
+"Central Europe","Stroke","Prevalence",0.0359302641107251,0,-0.000285256427561896,1991.01787188408
+"Central Europe","Stroke","Incidence",0.00142711187691427,0,-1.76471792163086e-05,1993.53880311287
+"Central Europe","Typhoid and paratyphoid","Deaths",3.12226976913914e-06,0,0,NA
+"Central Europe","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Central Europe","Typhoid and paratyphoid","Incidence",1.34664236947317e-06,0,-2.20975518246973e-08,1990.61962648573
+"Central Latin America","Diarrheal diseases","Deaths",0.0331133815297413,0,-0.000840945053982235,1990.88814379158
+"Central Latin America","Diarrheal diseases","Prevalence",0.0198925682522274,0,-0.000274994415719398,1990.60220840941
+"Central Latin America","Diarrheal diseases","Incidence",0.202371908000183,0,-0.00215870564284181,1990.56963464015
+"Central Latin America","Falls","Deaths",0.0129715276746326,0,-0.000117574727257226,1991.07636717904
+"Central Latin America","Falls","Prevalence",0.103833510920545,0,0,NA
+"Central Latin America","Falls","Incidence",0.00523283210830024,0,0,NA
+"Central Latin America","Malaria","Deaths",0.00332183109040442,0,-0.000125115979164346,1992.89787692062
+"Central Latin America","Malaria","Prevalence",0.00367442290608018,0,-9.86810272222676e-05,1991.44023989721
+"Central Latin America","Malaria","Incidence",0.00139591851427383,0,-4.41874250343507e-05,1992.1053992008
+"Central Latin America","Multiple sclerosis","Deaths",0.000247352713284717,1.31600103818525e-05,-1.13583227908123e-05,2009.17871283883
+"Central Latin America","Multiple sclerosis","Prevalence",7.70718183058989e-05,1.42654714973005e-06,-1.11730896129224e-06,2004.83921990024
+"Central Latin America","Multiple sclerosis","Incidence",5.83595376931176e-07,8.77892015313778e-09,-6.55191321023011e-09,2004.51871689273
+"Central Latin America","Pancreatic cancer","Deaths",0.00513847725804065,0.000150551419306309,-8.27372895800471e-05,2000.91155662635
+"Central Latin America","Pancreatic cancer","Prevalence",9.14273528245919e-05,6.02603534288341e-07,0,NA
+"Central Latin America","Pancreatic cancer","Incidence",2.00522040843457e-05,5.6247465719731e-07,-3.82732886967527e-07,1997.45435373584
+"Central Latin America","Protein-energy malnutrition","Deaths",0.0210382409519852,0,-0.000455673665908414,1990.72274054455
+"Central Latin America","Protein-energy malnutrition","Prevalence",0.0143189861955719,0,-0.000119946478716188,1992.23705054788
+"Central Latin America","Protein-energy malnutrition","Incidence",0.00212649935846399,0,0,NA
+"Central Latin America","Schistosomiasis","Deaths",4.4868454055987e-05,0,-8.95427157010455e-07,1990.94329112934
+"Central Latin America","Schistosomiasis","Prevalence",0.0064033038662386,0,0,NA
+"Central Latin America","Schistosomiasis","Incidence",0,0,0,NA
+"Central Latin America","Stroke","Deaths",0.061354534072332,0,-0.000637689751838512,1991.75483316258
+"Central Latin America","Stroke","Prevalence",0.0274478797314682,0,-0.000262077790900124,1991.05060325807
+"Central Latin America","Stroke","Incidence",0.000564207172654282,0,-4.98417610401354e-06,1991.29094386629
+"Central Latin America","Typhoid and paratyphoid","Deaths",0.000687678031895226,0,-2.59148794499928e-05,1990.98521086953
+"Central Latin America","Typhoid and paratyphoid","Prevalence",1.52905639957291e-05,0,-4.32912098105163e-07,1991.07573478279
+"Central Latin America","Typhoid and paratyphoid","Incidence",0.000101564822022551,0,-1.70606317826132e-06,1990.8336549247
+"Central Sub-Saharan Africa","Diarrheal diseases","Deaths",0.0671770630973185,0,-0.000533723166981237,1990.84761256048
+"Central Sub-Saharan Africa","Diarrheal diseases","Prevalence",0.0252476214075837,0.000213951324497546,-0.000101517954769573,2007.4344760327
+"Central Sub-Saharan Africa","Diarrheal diseases","Incidence",0.205400034821395,0.00166183115653765,0,NA
+"Central Sub-Saharan Africa","Falls","Deaths",0.00474495072862135,4.82013997876035e-05,0,NA
+"Central Sub-Saharan Africa","Falls","Prevalence",0.0310433410448546,0.000197682699503455,0,NA
+"Central Sub-Saharan Africa","Falls","Incidence",0.00145833150090536,8.76353618071586e-06,0,NA
+"Central Sub-Saharan Africa","Malaria","Deaths",0.0424508697693501,0.000536876015123427,0,NA
+"Central Sub-Saharan Africa","Malaria","Prevalence",0.303483882630244,0,-0.0120045765709816,2006.16328152487
+"Central Sub-Saharan Africa","Malaria","Incidence",0.0293341933809115,0,-0.00063003634046513,2004.09449389726
+"Central Sub-Saharan Africa","Multiple sclerosis","Deaths",5.89927646379635e-05,1.16427517093031e-06,0,NA
+"Central Sub-Saharan Africa","Multiple sclerosis","Prevalence",3.99855709226379e-05,1.31461614454595e-07,0,NA
+"Central Sub-Saharan Africa","Multiple sclerosis","Incidence",3.71105282154129e-07,0,0,NA
+"Central Sub-Saharan Africa","Pancreatic cancer","Deaths",0.00104320178487861,2.42429772334696e-05,0,NA
+"Central Sub-Saharan Africa","Pancreatic cancer","Prevalence",3.7387648043378e-05,3.08995037209399e-07,0,NA
+"Central Sub-Saharan Africa","Pancreatic cancer","Incidence",8.30155053015781e-06,5.07807850194912e-08,0,NA
+"Central Sub-Saharan Africa","Protein-energy malnutrition","Deaths",0.0164112060713581,0,-0.000227648744042445,1993.21540058083
+"Central Sub-Saharan Africa","Protein-energy malnutrition","Prevalence",0.0125930037091938,0,-0.000115294809189298,2002.17361054664
+"Central Sub-Saharan Africa","Protein-energy malnutrition","Incidence",0.00130011668153704,0,-2.02313994276526e-05,2005.7042509592
+"Central Sub-Saharan Africa","Schistosomiasis","Deaths",0.00341600565503643,0,-4.63565166685566e-05,1990.61175058263
+"Central Sub-Saharan Africa","Schistosomiasis","Prevalence",0.139965883342302,0,-0.00765867264341401,2008.69345171205
+"Central Sub-Saharan Africa","Schistosomiasis","Incidence",0,0,0,NA
+"Central Sub-Saharan Africa","Stroke","Deaths",0.0637941251278964,0,0,NA
+"Central Sub-Saharan Africa","Stroke","Prevalence",0.0296555779786651,0,-0.000157740376869361,1991.20452148129
+"Central Sub-Saharan Africa","Stroke","Incidence",0.000739780447955804,0,-5.10334661174088e-06,1992.50630295118
+"Central Sub-Saharan Africa","Typhoid and paratyphoid","Deaths",0.001036940675745,0,0,NA
+"Central Sub-Saharan Africa","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Central Sub-Saharan Africa","Typhoid and paratyphoid","Incidence",8.4760802321138e-05,0,-1.68778944745153e-06,1990.25920896607
+"East Asia","Diarrheal diseases","Deaths",0.00637367964692046,0,-0.000205719273389388,1990.67342374365
+"East Asia","Diarrheal diseases","Prevalence",0.0110081648206671,0,0,NA
+"East Asia","Diarrheal diseases","Incidence",0.155545736348021,0,0,NA
+"East Asia","Falls","Deaths",0.0106839289667606,0.000445587002934642,0,NA
+"East Asia","Falls","Prevalence",0.0866663822459517,0,0,NA
+"East Asia","Falls","Incidence",0.00558595898502334,0,0,NA
+"East Asia","Malaria","Deaths",0.000383365885667171,0,-1.89503342059103e-05,1991.42913917983
+"East Asia","Malaria","Prevalence",0.000472360145943048,0,-1.75035559072681e-05,1990.45247266154
+"East Asia","Malaria","Incidence",5.812070527103e-05,0,-2.84008861377373e-06,1993.33768768778
+"East Asia","Multiple sclerosis","Deaths",0.000237073024947217,2.22001323814873e-06,0,NA
+"East Asia","Multiple sclerosis","Prevalence",1.90851694094271e-05,2.41660177656211e-07,0,NA
+"East Asia","Multiple sclerosis","Incidence",5.9611281007211e-07,0,-9.36468333339159e-10,1993.43571109866
+"East Asia","Pancreatic cancer","Deaths",0.00265148637549017,0.00024296815967265,0,NA
+"East Asia","Pancreatic cancer","Prevalence",5.47607653042693e-05,2.5960022934733e-06,0,NA
+"East Asia","Pancreatic cancer","Incidence",1.78801049534003e-05,8.43727597482858e-07,-4.90814496300047e-07,2012.21506457825
+"East Asia","Protein-energy malnutrition","Deaths",0.00661391460324431,0,-0.000361914636479695,1998.85020190215
+"East Asia","Protein-energy malnutrition","Prevalence",0.0125175251925115,0.000222952223963701,0,NA
+"East Asia","Protein-energy malnutrition","Incidence",0.00264514163984948,5.7008940047952e-05,0,NA
+"East Asia","Schistosomiasis","Deaths",0.000226670008707883,0,-8.24319656182779e-06,1990.73025358559
+"East Asia","Schistosomiasis","Prevalence",0.0113366715542261,0,-0.000179745542801311,1990.54395853549
+"East Asia","Schistosomiasis","Incidence",0,0,0,NA
+"East Asia","Stroke","Deaths",0.133546825483539,0.000931088794480755,-0.00193301843102474,2001.97294680402
+"East Asia","Stroke","Prevalence",0.0301137731749485,0.00033887797000205,0,NA
+"East Asia","Stroke","Incidence",0.0016390081187555,0,-2.54477798847587e-05,2003.57260184898
+"East Asia","Typhoid and paratyphoid","Deaths",0.0009376093889394,7.16166157507075e-06,0,NA
+"East Asia","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"East Asia","Typhoid and paratyphoid","Incidence",3.59539168615159e-05,0,-7.89969334266073e-07,1990.57085481542
+"Eastern Europe","Diarrheal diseases","Deaths",0.0018666624874175,0,-4.75954785755544e-05,1992.57293491902
+"Eastern Europe","Diarrheal diseases","Prevalence",0.0117209882121108,0.000107680504638325,0,NA
+"Eastern Europe","Diarrheal diseases","Incidence",0.147669542672193,0.00103306503305245,0,NA
+"Eastern Europe","Falls","Deaths",0.0127856206034169,0.000104252457303039,-0.000116436641000748,2003.28261404347
+"Eastern Europe","Falls","Prevalence",0.207264469678375,0.00325747784123902,-0.00619765197132416,2002.62079843345
+"Eastern Europe","Falls","Incidence",0.00940793295149022,0.000156832205188372,-0.000293926161260736,2003.02695089552
+"Eastern Europe","Malaria","Deaths",0,0,0,NA
+"Eastern Europe","Malaria","Prevalence",0,0,0,NA
+"Eastern Europe","Malaria","Incidence",0,0,0,NA
+"Eastern Europe","Multiple sclerosis","Deaths",0.000976811969907592,0,0,NA
+"Eastern Europe","Multiple sclerosis","Prevalence",0.000260949310649162,0,-2.71686129715778e-06,2006.89607370337
+"Eastern Europe","Multiple sclerosis","Incidence",1.78956971854044e-06,0,-9.71224682229205e-09,1993.01688313017
+"Eastern Europe","Pancreatic cancer","Deaths",0.00534270850103022,8.74875193082321e-05,0,NA
+"Eastern Europe","Pancreatic cancer","Prevalence",0.000125340814534536,7.39479300519344e-07,0,NA
+"Eastern Europe","Pancreatic cancer","Incidence",3.64146358917593e-05,1.41459561333668e-07,0,NA
+"Eastern Europe","Protein-energy malnutrition","Deaths",0.000431549277658105,0,-6.71727341411488e-06,1991.99743804493
+"Eastern Europe","Protein-energy malnutrition","Prevalence",0.00582049065374547,1.7365151950702e-05,0,NA
+"Eastern Europe","Protein-energy malnutrition","Incidence",0.000854673929417864,2.66255631619813e-06,0,NA
+"Eastern Europe","Schistosomiasis","Deaths",0,0,0,NA
+"Eastern Europe","Schistosomiasis","Prevalence",0,0,0,NA
+"Eastern Europe","Schistosomiasis","Incidence",0,0,0,NA
+"Eastern Europe","Stroke","Deaths",0.122362956145924,0,-0.00167731916859769,2000.3548468252
+"Eastern Europe","Stroke","Prevalence",0.0321147925525745,0,-0.000198446642376402,1990.36446223667
+"Eastern Europe","Stroke","Incidence",0.0015335321842043,0,-2.03916721530663e-05,1995.5583219838
+"Eastern Europe","Typhoid and paratyphoid","Deaths",4.55621543247636e-06,0,-1.12361278373068e-07,1996.00923875796
+"Eastern Europe","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Eastern Europe","Typhoid and paratyphoid","Incidence",3.61630066090368e-07,0,0,NA
+"Eastern Sub-Saharan Africa","Diarrheal diseases","Deaths",0.0853203061473296,0,-0.000906296614408453,1991.42581685626
+"Eastern Sub-Saharan Africa","Diarrheal diseases","Prevalence",0.0310305879701234,0,-4.83538814502395e-05,1992.16551064723
+"Eastern Sub-Saharan Africa","Diarrheal diseases","Incidence",0.260506638817481,0,0,NA
+"Eastern Sub-Saharan Africa","Falls","Deaths",0.00440094862828205,7.34819262302785e-05,0,NA
+"Eastern Sub-Saharan Africa","Falls","Prevalence",0.042157728823978,0.00020101968143321,0,NA
+"Eastern Sub-Saharan Africa","Falls","Incidence",0.00185501414558622,1.28036938331058e-05,0,NA
+"Eastern Sub-Saharan Africa","Malaria","Deaths",0.0379120556551869,0,-0.000475792996483845,2001.19859684903
+"Eastern Sub-Saharan Africa","Malaria","Prevalence",0.160454361016711,0,-0.00460732821155802,1997.38503416261
+"Eastern Sub-Saharan Africa","Malaria","Incidence",0.0195476094155818,0,-0.000450909044857223,2002.54619064584
+"Eastern Sub-Saharan Africa","Multiple sclerosis","Deaths",4.72471789152094e-05,1.91451195621735e-06,0,NA
+"Eastern Sub-Saharan Africa","Multiple sclerosis","Prevalence",4.77947542642734e-05,1.29159453387803e-07,0,NA
+"Eastern Sub-Saharan Africa","Multiple sclerosis","Incidence",4.27062819781733e-07,0,0,NA
+"Eastern Sub-Saharan Africa","Pancreatic cancer","Deaths",0.000766373714176259,4.90298433985136e-05,0,NA
+"Eastern Sub-Saharan Africa","Pancreatic cancer","Prevalence",3.20880548484739e-05,6.68312272882182e-07,0,NA
+"Eastern Sub-Saharan Africa","Pancreatic cancer","Incidence",7.03285267516169e-06,1.4222482363018e-07,0,NA
+"Eastern Sub-Saharan Africa","Protein-energy malnutrition","Deaths",0.0271375417886887,0,-0.000429853229733327,1990.99211308124
+"Eastern Sub-Saharan Africa","Protein-energy malnutrition","Prevalence",0.0145755978830757,0,-0.000119064837960725,1991.44029081917
+"Eastern Sub-Saharan Africa","Protein-energy malnutrition","Incidence",0.00179941018681464,0,-1.7097489756711e-05,1992.94393288959
+"Eastern Sub-Saharan Africa","Schistosomiasis","Deaths",0.00371194339592654,0,-7.70970638255202e-05,1990.85462608578
+"Eastern Sub-Saharan Africa","Schistosomiasis","Prevalence",0.214090511325609,0,-0.00763862231785977,2005.69386073591
+"Eastern Sub-Saharan Africa","Schistosomiasis","Incidence",0,0,0,NA
+"Eastern Sub-Saharan Africa","Stroke","Deaths",0.0575928317427555,0.000432190498542291,0,NA
+"Eastern Sub-Saharan Africa","Stroke","Prevalence",0.031959140454706,0,-0.00012258440852309,1991.06965373709
+"Eastern Sub-Saharan Africa","Stroke","Incidence",0.000751492748491207,0,-5.56206238775306e-06,1992.14726372086
+"Eastern Sub-Saharan Africa","Typhoid and paratyphoid","Deaths",0.00608712617941323,0,0,NA
+"Eastern Sub-Saharan Africa","Typhoid and paratyphoid","Prevalence",7.00872333896445e-05,0,-2.81126144935093e-06,1990.57870364358
+"Eastern Sub-Saharan Africa","Typhoid and paratyphoid","Incidence",0.00046874783954402,0,-1.17881954360991e-05,1990.37311231827
+"High-income Asia Pacific","Diarrheal diseases","Deaths",0.00166750048479327,5.29224893879456e-05,0,NA
+"High-income Asia Pacific","Diarrheal diseases","Prevalence",0.00262883523845847,0,-2.25273932128897e-05,1996.16306964185
+"High-income Asia Pacific","Diarrheal diseases","Incidence",0.0380888324242735,0,-0.000357091100676327,1996.92204289954
+"High-income Asia Pacific","Falls","Deaths",0.0153064602900155,0,0,NA
+"High-income Asia Pacific","Falls","Prevalence",0.149575834670246,0,0,NA
+"High-income Asia Pacific","Falls","Incidence",0.00878288818301818,4.89676923506928e-05,-4.74069678020267e-05,2003.40775339187
+"High-income Asia Pacific","Malaria","Deaths",3.13862853779908e-05,0,-1.12091865505653e-06,1990.71883335979
+"High-income Asia Pacific","Malaria","Prevalence",0.000255408899118922,0,-1.15792233385491e-05,1998.09052051895
+"High-income Asia Pacific","Malaria","Incidence",1.68748323500174e-05,0,-7.19607279590207e-07,1991.10722235732
+"High-income Asia Pacific","Multiple sclerosis","Deaths",0.000351746139727848,7.14850455392456e-06,0,NA
+"High-income Asia Pacific","Multiple sclerosis","Prevalence",9.94476612144349e-05,1.04513778892323e-06,-6.93469896436369e-07,2000.08760456772
+"High-income Asia Pacific","Multiple sclerosis","Incidence",6.90566182547393e-07,1.29093660436756e-09,0,NA
+"High-income Asia Pacific","Pancreatic cancer","Deaths",0.0130525109766183,0.000404985919927063,0,NA
+"High-income Asia Pacific","Pancreatic cancer","Prevalence",0.000279737913009461,4.99998222373547e-06,0,NA
+"High-income Asia Pacific","Pancreatic cancer","Incidence",7.34405915124366e-05,7.69402807549266e-07,0,NA
+"High-income Asia Pacific","Protein-energy malnutrition","Deaths",0.000547473245423313,3.30349145318754e-05,-3.30593529171918e-05,1998.15661964283
+"High-income Asia Pacific","Protein-energy malnutrition","Prevalence",0.00686102332422868,0,0,NA
+"High-income Asia Pacific","Protein-energy malnutrition","Incidence",0.00132348518295765,0,0,NA
+"High-income Asia Pacific","Schistosomiasis","Deaths",2.79982053160387e-08,0,0,NA
+"High-income Asia Pacific","Schistosomiasis","Prevalence",0,0,0,NA
+"High-income Asia Pacific","Schistosomiasis","Incidence",0,0,0,NA
+"High-income Asia Pacific","Stroke","Deaths",0.105617814660051,0,-0.00192097409152593,1990.61434179518
+"High-income Asia Pacific","Stroke","Prevalence",0.0407199551868834,0,-0.000287180408536274,1994.91497971888
+"High-income Asia Pacific","Stroke","Incidence",0.00118926296460846,0,-1.87585444835152e-05,1990.8836853981
+"High-income Asia Pacific","Typhoid and paratyphoid","Deaths",2.54049650623612e-06,0,-3.46383269143668e-08,1991.80211894598
+"High-income Asia Pacific","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"High-income Asia Pacific","Typhoid and paratyphoid","Incidence",1.10264159633409e-06,0,0,NA
+"High-income North America","Diarrheal diseases","Deaths",-0.00014595846149337,0.000149005832654978,-0.000188319490808403,2011.49382650323
+"High-income North America","Diarrheal diseases","Prevalence",0.00649891416652173,4.81522229961671e-05,0,NA
+"High-income North America","Diarrheal diseases","Incidence",0.0756421205307411,0.000522925043238088,0,NA
+"High-income North America","Falls","Deaths",0.00676858491386272,0.00019400422895099,-0.000263469183479594,2013.0926349931
+"High-income North America","Falls","Prevalence",0.166544665615635,0.00110639329954758,0,NA
+"High-income North America","Falls","Incidence",0.00995166374409473,0.000105610288273138,0,NA
+"High-income North America","Malaria","Deaths",0,0,0,NA
+"High-income North America","Malaria","Prevalence",0,0,0,NA
+"High-income North America","Malaria","Incidence",0,0,0,NA
+"High-income North America","Multiple sclerosis","Deaths",0.00151129665034387,1.51841205967575e-05,0,NA
+"High-income North America","Multiple sclerosis","Prevalence",0.00116263315659259,3.43327346998298e-06,0,NA
+"High-income North America","Multiple sclerosis","Incidence",4.25301720739544e-06,1.24651366105167e-08,0,NA
+"High-income North America","Pancreatic cancer","Deaths",0.0107752221422393,0.000209398827475313,-0.000192689570989704,2014.25964156095
+"High-income North America","Pancreatic cancer","Prevalence",0.000222047558270745,2.58686481525622e-06,0,NA
+"High-income North America","Pancreatic cancer","Incidence",6.14918420247603e-05,4.20194825761876e-07,0,NA
+"High-income North America","Protein-energy malnutrition","Deaths",0.000733917081203911,1.03547691855467e-05,0,NA
+"High-income North America","Protein-energy malnutrition","Prevalence",0.00840180500415835,0,0,NA
+"High-income North America","Protein-energy malnutrition","Incidence",0.0016377956296886,0,0,NA
+"High-income North America","Schistosomiasis","Deaths",0,0,0,NA
+"High-income North America","Schistosomiasis","Prevalence",0,0,0,NA
+"High-income North America","Schistosomiasis","Incidence",0,0,0,NA
+"High-income North America","Stroke","Deaths",0.0455533395436591,0,-0.000377190449660914,1994.52486904391
+"High-income North America","Stroke","Prevalence",0.036848263066496,0,0,NA
+"High-income North America","Stroke","Incidence",0.000750739206174304,0,-7.9695258685713e-06,1991.3415514424
+"High-income North America","Typhoid and paratyphoid","Deaths",2.19555762228158e-06,5.6224026481087e-08,0,NA
+"High-income North America","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"High-income North America","Typhoid and paratyphoid","Incidence",9.5310685114332e-07,0,0,NA
+"North Africa and Middle East","Diarrheal diseases","Deaths",0.0115287821726691,0,-0.000218496803864653,2007.22350475283
+"North Africa and Middle East","Diarrheal diseases","Prevalence",0.0164073613320274,0.000436792995846154,-0.000223741790723251,2004.68529523079
+"North Africa and Middle East","Diarrheal diseases","Incidence",0.176268367747383,0.00371934649422775,-0.00223318634557967,2003.5173190462
+"North Africa and Middle East","Falls","Deaths",0.0096587245295368,5.48150263813058e-05,0,NA
+"North Africa and Middle East","Falls","Prevalence",0.0592546558842467,0.00101516390253084,0,NA
+"North Africa and Middle East","Falls","Incidence",0.00324758658363399,5.10042845611596e-05,0,NA
+"North Africa and Middle East","Malaria","Deaths",0.00842541941775797,0,-0.000170783128582189,1992.78875562547
+"North Africa and Middle East","Malaria","Prevalence",0.00399320099813634,0,-9.93100389709604e-05,1992.42765128416
+"North Africa and Middle East","Malaria","Incidence",0.00167102678684226,0,-5.0402912365361e-05,1991.33970582356
+"North Africa and Middle East","Multiple sclerosis","Deaths",0.000461481461892897,1.00653860708731e-05,0,NA
+"North Africa and Middle East","Multiple sclerosis","Prevalence",0.000455425146936151,3.63619381835444e-06,0,NA
+"North Africa and Middle East","Multiple sclerosis","Incidence",1.96668906766106e-06,2.39389497570476e-09,0,NA
+"North Africa and Middle East","Pancreatic cancer","Deaths",0.00212591272100617,0.000138246820795629,0,NA
+"North Africa and Middle East","Pancreatic cancer","Prevalence",4.24673156930449e-05,2.18862390842324e-06,0,NA
+"North Africa and Middle East","Pancreatic cancer","Incidence",1.23997937233885e-05,4.09958538367463e-07,0,NA
+"North Africa and Middle East","Protein-energy malnutrition","Deaths",0.00347203150146294,0,-8.36581619674466e-05,1999.2593761077
+"North Africa and Middle East","Protein-energy malnutrition","Prevalence",0.0100610323410022,9.23790058558964e-05,0,NA
+"North Africa and Middle East","Protein-energy malnutrition","Incidence",0.00143253777852434,1.37579650127413e-05,0,NA
+"North Africa and Middle East","Schistosomiasis","Deaths",0.000652266897129192,0,-1.6614037124076e-05,1990.49047952969
+"North Africa and Middle East","Schistosomiasis","Prevalence",0.0663321685408683,0,-0.00297035525019844,1998.95024375384
+"North Africa and Middle East","Schistosomiasis","Incidence",0,0,0,NA
+"North Africa and Middle East","Stroke","Deaths",0.088050895883923,0,-0.000569236269816505,2008.69362161866
+"North Africa and Middle East","Stroke","Prevalence",0.034160112069611,1.93895593846274e-05,0,NA
+"North Africa and Middle East","Stroke","Incidence",0.000967363654927284,0,-6.7082157872218e-06,1990.88656453628
+"North Africa and Middle East","Typhoid and paratyphoid","Deaths",0.00382476074034247,0,-5.32019861598271e-05,1994.96382092839
+"North Africa and Middle East","Typhoid and paratyphoid","Prevalence",3.15395364214077e-08,0,0,NA
+"North Africa and Middle East","Typhoid and paratyphoid","Incidence",0.000126651972176734,0,-3.25936048788217e-06,1990.42515575909
+"Oceania","Diarrheal diseases","Deaths",0.0561913627618819,0,-0.000535362617469468,1990.5826626432
+"Oceania","Diarrheal diseases","Prevalence",0.0323517024209954,0.000114233049851471,0,NA
+"Oceania","Diarrheal diseases","Incidence",0.279363711257462,0.00140233487411029,0,NA
+"Oceania","Falls","Deaths",0.00920863001301331,0.000172931982665616,-6.92414725956588e-05,1998.0409310602
+"Oceania","Falls","Prevalence",0.0539171805742076,0.000791252724124449,0,NA
+"Oceania","Falls","Incidence",0.00287942853816169,4.26272295872837e-05,0,NA
+"Oceania","Malaria","Deaths",0.0292025291092708,0,0,NA
+"Oceania","Malaria","Prevalence",0.0476532524503583,0,-0.00113808818748726,1994.35567917274
+"Oceania","Malaria","Incidence",0.0259886161482098,0,-0.000628377516905162,1993.78143053144
+"Oceania","Multiple sclerosis","Deaths",8.82704640567948e-05,0,-4.77310789284464e-07,1992.21702197618
+"Oceania","Multiple sclerosis","Prevalence",1.80547798685842e-05,0,0,NA
+"Oceania","Multiple sclerosis","Incidence",3.14013749039769e-07,0,-8.51795729749911e-10,1990.67874399211
+"Oceania","Pancreatic cancer","Deaths",0.0012736982289037,1.68401361532004e-05,0,NA
+"Oceania","Pancreatic cancer","Prevalence",3.15666221473331e-05,6.16543254329142e-07,-2.8424954058927e-07,2002.59175364139
+"Oceania","Pancreatic cancer","Incidence",7.3348096595099e-06,1.21426236069393e-07,-5.70622421014074e-08,2003.43328233798
+"Oceania","Protein-energy malnutrition","Deaths",0.00591032877996428,0,-7.71614978681967e-05,1990.82412768763
+"Oceania","Protein-energy malnutrition","Prevalence",0.016544717537371,0,-0.000149539510207283,2008.37408918875
+"Oceania","Protein-energy malnutrition","Incidence",0.0021218784783803,0,-4.28277315509853e-05,2009.45535435951
+"Oceania","Schistosomiasis","Deaths",0,0,0,NA
+"Oceania","Schistosomiasis","Prevalence",0,0,0,NA
+"Oceania","Schistosomiasis","Incidence",0,0,0,NA
+"Oceania","Stroke","Deaths",0.0850350918781674,0,-0.000108489898478484,1992.76580193759
+"Oceania","Stroke","Prevalence",0.0371498194362322,0,-3.66625737188335e-05,1991.29339446704
+"Oceania","Stroke","Incidence",0.000867132707507767,0,-3.99085107749477e-06,1990.45718621469
+"Oceania","Typhoid and paratyphoid","Deaths",0.0195378574859759,0,-0.000287026959348252,1990.92840883878
+"Oceania","Typhoid and paratyphoid","Prevalence",0.000158903948846446,0,-5.23967231593404e-06,1990.63593792747
+"Oceania","Typhoid and paratyphoid","Incidence",0.000789813499545032,0,-1.97751482229503e-05,1990.33567301532
+"South Asia","Diarrheal diseases","Deaths",0.125876526353899,0,-0.00209880956966189,1990.88964429623
+"South Asia","Diarrheal diseases","Prevalence",0.036062109720882,0,-0.000364774213821294,1992.71722093008
+"South Asia","Diarrheal diseases","Incidence",0.322402142553888,0,-0.00223181822439822,1994.40086764413
+"South Asia","Falls","Deaths",0.0144681045662526,0.000207843672656821,0,NA
+"South Asia","Falls","Prevalence",0.106276804304274,0.00109784488359242,0,NA
+"South Asia","Falls","Incidence",0.00522551506834433,5.69972530863523e-05,0,NA
+"South Asia","Malaria","Deaths",0.0207926961569157,0,-0.00054252919082914,1991.05213961934
+"South Asia","Malaria","Prevalence",0.0124439978264731,0,-0.000354354775301733,1990.71163287016
+"South Asia","Malaria","Incidence",0.00609585164380055,0,-0.000189671420821758,1990.76344132375
+"South Asia","Multiple sclerosis","Deaths",0.000158943001553622,4.34342073811774e-06,0,NA
+"South Asia","Multiple sclerosis","Prevalence",7.99181632863886e-05,4.54842349713775e-07,0,NA
+"South Asia","Multiple sclerosis","Incidence",5.86716855529724e-07,3.68514707538504e-09,0,NA
+"South Asia","Pancreatic cancer","Deaths",0.000741320877880796,7.04874485355773e-05,0,NA
+"South Asia","Pancreatic cancer","Prevalence",2.43840215409486e-05,1.0191233004353e-06,0,NA
+"South Asia","Pancreatic cancer","Incidence",5.40253211559414e-06,2.32159760626145e-07,0,NA
+"South Asia","Protein-energy malnutrition","Deaths",0.0103374622069187,0,-0.000319453242699246,1990.82849118206
+"South Asia","Protein-energy malnutrition","Prevalence",0.0234436552264043,0,0,NA
+"South Asia","Protein-energy malnutrition","Incidence",0.00339621013061711,0,0,NA
+"South Asia","Schistosomiasis","Deaths",0,0,0,NA
+"South Asia","Schistosomiasis","Prevalence",0,0,0,NA
+"South Asia","Schistosomiasis","Incidence",0,0,0,NA
+"South Asia","Stroke","Deaths",0.0602717309366533,0.000329695049949403,-0.000364598673247203,2002.91259171053
+"South Asia","Stroke","Prevalence",0.0140141579086055,0,0,NA
+"South Asia","Stroke","Incidence",0.000521525665167341,0,-3.08408137264145e-06,1993.72757562584
+"South Asia","Typhoid and paratyphoid","Deaths",0.0291888342191982,0.000156585103016622,0,NA
+"South Asia","Typhoid and paratyphoid","Prevalence",0.000489213238233589,0,-1.49244555552529e-05,1990.44540371341
+"South Asia","Typhoid and paratyphoid","Incidence",0.0018833378558712,0,-4.24827818262892e-05,1990.36445980068
+"Southeast Asia","Diarrheal diseases","Deaths",0.0464023589083626,0,-0.000963582711754663,1990.57357255801
+"Southeast Asia","Diarrheal diseases","Prevalence",0.0196755280507139,0,0,NA
+"Southeast Asia","Diarrheal diseases","Incidence",0.177499042855482,0.000298073721316559,0,NA
+"Southeast Asia","Falls","Deaths",0.0126017469646971,5.62263133103616e-05,0,NA
+"Southeast Asia","Falls","Prevalence",0.067098739454392,0.000325202992640466,0,NA
+"Southeast Asia","Falls","Incidence",0.00339373323199469,3.62452523453259e-05,-1.82410885548509e-05,1994.90482888216
+"Southeast Asia","Malaria","Deaths",0.00366432481271051,0.000218426857400269,-0.00128750898699323,2010.70762997643
+"Southeast Asia","Malaria","Prevalence",0.00553965136064497,0,-0.000141648026542075,1991.18134718896
+"Southeast Asia","Malaria","Incidence",0.00178343665083121,0,-5.45375390907938e-05,1991.07363451516
+"Southeast Asia","Multiple sclerosis","Deaths",0.000175591070479777,9.39074167817687e-07,0,NA
+"Southeast Asia","Multiple sclerosis","Prevalence",2.5468969951031e-05,1.04219883273846e-07,0,NA
+"Southeast Asia","Multiple sclerosis","Incidence",4.31499087322954e-07,0,0,NA
+"Southeast Asia","Pancreatic cancer","Deaths",0.00205197039720916,9.78473977504259e-05,0,NA
+"Southeast Asia","Pancreatic cancer","Prevalence",4.15014427028936e-05,1.51829876979931e-06,0,NA
+"Southeast Asia","Pancreatic cancer","Incidence",1.04641392651298e-05,3.48120207986097e-07,0,NA
+"Southeast Asia","Protein-energy malnutrition","Deaths",0.010162440458516,0,-0.00017536586539424,1990.92522128349
+"Southeast Asia","Protein-energy malnutrition","Prevalence",0.0243881745069679,0,0,NA
+"Southeast Asia","Protein-energy malnutrition","Incidence",0.00352629643618709,1.02899066127019e-05,0,NA
+"Southeast Asia","Schistosomiasis","Deaths",8.17440423850662e-05,0,-7.04578613670399e-07,1991.36481354024
+"Southeast Asia","Schistosomiasis","Prevalence",0.0036846703543756,0,-0.000221699403096021,2008.59428043065
+"Southeast Asia","Schistosomiasis","Incidence",0,0,0,NA
+"Southeast Asia","Stroke","Deaths",0.110841985230321,0.000519556516139225,0,NA
+"Southeast Asia","Stroke","Prevalence",0.0353302077524053,0,0,NA
+"Southeast Asia","Stroke","Incidence",0.00101778427532307,0,-7.77588093056542e-06,2005.92979525521
+"Southeast Asia","Typhoid and paratyphoid","Deaths",0.0174163507465142,0,0,NA
+"Southeast Asia","Typhoid and paratyphoid","Prevalence",0.000105242319722189,0,-3.49232176979114e-06,1990.54545350535
+"Southeast Asia","Typhoid and paratyphoid","Incidence",0.000641393334716288,0,-1.38582428991229e-05,1990.4250323228
+"Southern Latin America","Diarrheal diseases","Deaths",0.004478510712027,0,-3.92605027881099e-05,1991.1470269519
+"Southern Latin America","Diarrheal diseases","Prevalence",0.00818183709416784,6.32300809367271e-05,0,NA
+"Southern Latin America","Diarrheal diseases","Incidence",0.097219682931439,0.000492541579189483,0,NA
+"Southern Latin America","Falls","Deaths",0.00925345914449027,0,-4.79910959701663e-05,1991.14335666809
+"Southern Latin America","Falls","Prevalence",0.108879297300844,0.000429516278656295,0,NA
+"Southern Latin America","Falls","Incidence",0.00628932030776099,2.0577359034885e-05,0,NA
+"Southern Latin America","Malaria","Deaths",5.1510878458114e-05,0,-2.14702807613026e-06,1991.50947925571
+"Southern Latin America","Malaria","Prevalence",0.000287021287933323,0,-1.2557621706562e-05,1990.95875222744
+"Southern Latin America","Malaria","Incidence",4.93469428102696e-06,0,-2.30749564327366e-07,1990.93244473462
+"Southern Latin America","Multiple sclerosis","Deaths",0.000574114374452995,2.8179673591999e-06,0,NA
+"Southern Latin America","Multiple sclerosis","Prevalence",0.000276102053775657,1.36485892233729e-06,-1.12380742513707e-06,2001.54606067317
+"Southern Latin America","Multiple sclerosis","Incidence",1.4496336839362e-06,9.55412083990318e-10,0,NA
+"Southern Latin America","Pancreatic cancer","Deaths",0.00973500478788437,0.000331765579847446,-0.000184023890952304,2000.25780542315
+"Southern Latin America","Pancreatic cancer","Prevalence",0.000173229051060177,4.19980793364745e-06,-3.16215692604293e-06,1999.38205316902
+"Southern Latin America","Pancreatic cancer","Incidence",5.68235076560069e-05,3.88435327902778e-07,0,NA
+"Southern Latin America","Protein-energy malnutrition","Deaths",0.00650302129321561,0,-0.000216094392381161,2003.49786086356
+"Southern Latin America","Protein-energy malnutrition","Prevalence",0.00967117805149651,0,0,NA
+"Southern Latin America","Protein-energy malnutrition","Incidence",0.00178019944463719,0,0,NA
+"Southern Latin America","Schistosomiasis","Deaths",0,0,0,NA
+"Southern Latin America","Schistosomiasis","Prevalence",0,0,0,NA
+"Southern Latin America","Schistosomiasis","Incidence",0,0,0,NA
+"Southern Latin America","Stroke","Deaths",0.088792581518907,0,-0.00143242973256121,1990.75297760809
+"Southern Latin America","Stroke","Prevalence",0.0225714287773387,0,-0.000219910477747628,1991.0373369269
+"Southern Latin America","Stroke","Incidence",0.000768409177272654,0,-1.04626455094972e-05,1990.97028427732
+"Southern Latin America","Typhoid and paratyphoid","Deaths",7.09615628037304e-05,0,-3.20531696074136e-06,1991.66722570614
+"Southern Latin America","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Southern Latin America","Typhoid and paratyphoid","Incidence",4.07774236517922e-06,0,-9.85203369828899e-08,1990.60097807888
+"Southern Sub-Saharan Africa","Diarrheal diseases","Deaths",0.0447279619727807,0,-0.000631411547608049,1991.2105098204
+"Southern Sub-Saharan Africa","Diarrheal diseases","Prevalence",0.0277360741211281,0,-4.85636222338385e-05,1992.30130176581
+"Southern Sub-Saharan Africa","Diarrheal diseases","Incidence",0.245048197333164,0,-0.000206944641975543,1992.1108974608
+"Southern Sub-Saharan Africa","Falls","Deaths",0.00319273344545444,0,-3.48298785790528e-05,1991.53335859327
+"Southern Sub-Saharan Africa","Falls","Prevalence",0.0364143193834463,0,-0.000125208624890712,1992.7466200808
+"Southern Sub-Saharan Africa","Falls","Incidence",0.0015480750289055,0,0,NA
+"Southern Sub-Saharan Africa","Malaria","Deaths",0.0141168167186575,0,-0.000378969938491994,2003.16573083927
+"Southern Sub-Saharan Africa","Malaria","Prevalence",0.00498969535852749,0.000400786075258551,-0.000856386989658583,2000.88141295578
+"Southern Sub-Saharan Africa","Malaria","Incidence",0.0025330018904831,0.000113566571504567,-0.000272238899264143,2001.06510531645
+"Southern Sub-Saharan Africa","Multiple sclerosis","Deaths",9.16833507349513e-05,0,0,NA
+"Southern Sub-Saharan Africa","Multiple sclerosis","Prevalence",8.22278511582438e-05,2.28398437194129e-07,0,NA
+"Southern Sub-Saharan Africa","Multiple sclerosis","Incidence",6.06333908432827e-07,0,0,NA
+"Southern Sub-Saharan Africa","Pancreatic cancer","Deaths",0.00387220226273488,0,0,NA
+"Southern Sub-Saharan Africa","Pancreatic cancer","Prevalence",8.80579467688474e-05,3.90710609465087e-06,-3.49423740595335e-06,1998.03415682363
+"Southern Sub-Saharan Africa","Pancreatic cancer","Incidence",2.19272209919893e-05,2.28439196754747e-07,0,NA
+"Southern Sub-Saharan Africa","Protein-energy malnutrition","Deaths",0.00878213654582567,0,0,NA
+"Southern Sub-Saharan Africa","Protein-energy malnutrition","Prevalence",0.0106903351335387,0,-9.7913687713533e-05,2000.64878370578
+"Southern Sub-Saharan Africa","Protein-energy malnutrition","Incidence",0.00146535424389043,0,-1.82229065141911e-05,2001.35092078162
+"Southern Sub-Saharan Africa","Schistosomiasis","Deaths",0.000338918040085508,0,0,NA
+"Southern Sub-Saharan Africa","Schistosomiasis","Prevalence",0.0900436702967541,0,-0.00235067739146699,2009.24701122656
+"Southern Sub-Saharan Africa","Schistosomiasis","Incidence",0,0,0,NA
+"Southern Sub-Saharan Africa","Stroke","Deaths",0.06130795093964,0,-0.000358846241879886,1991.00966628669
+"Southern Sub-Saharan Africa","Stroke","Prevalence",0.0362262838135775,0,-0.000140138598310571,2007.80732846028
+"Southern Sub-Saharan Africa","Stroke","Incidence",0.000664615097470676,8.85543273154685e-06,-1.64888999609141e-05,2004.05728558754
+"Southern Sub-Saharan Africa","Typhoid and paratyphoid","Deaths",6.43463921121848e-05,0,0,NA
+"Southern Sub-Saharan Africa","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Southern Sub-Saharan Africa","Typhoid and paratyphoid","Incidence",2.64146495593669e-06,0,0,NA
+"Tropical Latin America","Diarrheal diseases","Deaths",0.0145023536380901,0,-0.000350249905656829,1990.71195419528
+"Tropical Latin America","Diarrheal diseases","Prevalence",0.020397883909344,0,-0.000121840897864718,1990.48329618017
+"Tropical Latin America","Diarrheal diseases","Incidence",0.18105036448539,0,-0.00107311519640808,2001.20799763789
+"Tropical Latin America","Falls","Deaths",0.0109805117761452,5.73797464890582e-05,0,NA
+"Tropical Latin America","Falls","Prevalence",0.136565463220973,0,0,NA
+"Tropical Latin America","Falls","Incidence",0.00543237240590809,4.0890678518866e-05,-4.91641232903497e-05,2001.93283220749
+"Tropical Latin America","Malaria","Deaths",0.00690738038401699,0,-0.000287521113401913,1990.93432028936
+"Tropical Latin America","Malaria","Prevalence",0.00330230773386895,0,-0.000102436599303411,1990.34473651787
+"Tropical Latin America","Malaria","Incidence",0.00142740892596872,0,-5.52515171684611e-05,1993.72731157377
+"Tropical Latin America","Multiple sclerosis","Deaths",0.00021982921790611,8.27606001179551e-06,-6.22330882335122e-06,2002.83080352894
+"Tropical Latin America","Multiple sclerosis","Prevalence",0.000227151689524325,1.76074015665476e-06,0,NA
+"Tropical Latin America","Multiple sclerosis","Incidence",1.08132091661038e-06,3.67615456431536e-09,0,NA
+"Tropical Latin America","Pancreatic cancer","Deaths",0.00498768904309414,0.000145357532024699,0,NA
+"Tropical Latin America","Pancreatic cancer","Prevalence",9.68194108298084e-05,1.14361788961755e-06,0,NA
+"Tropical Latin America","Pancreatic cancer","Incidence",1.98666672892726e-05,2.72621253923972e-07,0,NA
+"Tropical Latin America","Protein-energy malnutrition","Deaths",0.00913101150771074,0,-0.000213918872043027,1999.41198152528
+"Tropical Latin America","Protein-energy malnutrition","Prevalence",0.00791817950312425,0,-8.752086957546e-05,2000.21797029273
+"Tropical Latin America","Protein-energy malnutrition","Incidence",0.00100518161443664,0,-1.12619644039441e-05,2003.00906396504
+"Tropical Latin America","Schistosomiasis","Deaths",0.000754140909506982,0,-1.59552924246242e-05,1990.61984146822
+"Tropical Latin America","Schistosomiasis","Prevalence",0.0230713206149845,0,0,NA
+"Tropical Latin America","Schistosomiasis","Incidence",0,0,0,NA
+"Tropical Latin America","Stroke","Deaths",0.108329674631142,0,-0.00159987655748797,1990.48258211723
+"Tropical Latin America","Stroke","Prevalence",0.0392612139869355,0,-0.000420422709101934,1990.529568372
+"Tropical Latin America","Stroke","Incidence",0.000777685838421321,0,-1.04021246029397e-05,1990.74781209394
+"Tropical Latin America","Typhoid and paratyphoid","Deaths",9.70870960047431e-05,0,-3.19019587788131e-06,1990.63873774142
+"Tropical Latin America","Typhoid and paratyphoid","Prevalence",0,0,0,NA
+"Tropical Latin America","Typhoid and paratyphoid","Incidence",9.66954516379961e-06,0,-3.07908542769199e-07,1990.71720069214
+"Western Europe","Diarrheal diseases","Deaths",0.000511243780261047,9.87818167454953e-05,-0.00011639169981208,2010.81496776065
+"Western Europe","Diarrheal diseases","Prevalence",0.00760136111392356,0.000113251241699148,-0.000188669267476113,2012.62964794035
+"Western Europe","Diarrheal diseases","Incidence",0.0861939397225963,0.000686615541025356,-0.00139645993481672,2013.20556044543
+"Western Europe","Falls","Deaths",0.0153883533727115,7.16921828312565e-05,0,NA
+"Western Europe","Falls","Prevalence",0.207723050745756,0.000414942399917042,0,NA
+"Western Europe","Falls","Incidence",0.0137210024893358,0,0,NA
+"Western Europe","Malaria","Deaths",0,0,0,NA
+"Western Europe","Malaria","Prevalence",0,0,0,NA
+"Western Europe","Malaria","Incidence",0,0,0,NA
+"Western Europe","Multiple sclerosis","Deaths",0.00171823712337086,3.79169998584981e-05,0,NA
+"Western Europe","Multiple sclerosis","Prevalence",0.000871691931225142,1.00491451560388e-05,-7.8808405044154e-06,2015.28411773415
+"Western Europe","Multiple sclerosis","Incidence",3.74582650137594e-06,2.66869548240852e-08,0,NA
+"Western Europe","Pancreatic cancer","Deaths",0.0109754877372133,0.000374956507989943,0,NA
+"Western Europe","Pancreatic cancer","Prevalence",0.000199289360214067,3.87683636821484e-06,-2.8107158083142e-06,2009.48160706702
+"Western Europe","Pancreatic cancer","Incidence",5.34630994057351e-05,4.8485494024426e-07,-2.88772780645157e-07,2010.72039519975
+"Western Europe","Protein-energy malnutrition","Deaths",0.000458623639930623,9.94254123915433e-06,-1.37539047435918e-05,2015.774516833
+"Western Europe","Protein-energy malnutrition","Prevalence",0.0112931306433295,0.000144120852543513,-0.000158899612020236,2009.456919241
+"Western Europe","Protein-energy malnutrition","Incidence",0.00215648326031965,2.49740689357952e-05,-2.88445064056136e-05,2008.94282318258
+"Western Europe","Schistosomiasis","Deaths",3.93687237035648e-08,0,0,NA
+"Western Europe","Schistosomiasis","Prevalence",0,0,0,NA
+"Western Europe","Schistosomiasis","Incidence",0,0,0,NA
+"Western Europe","Stroke","Deaths",0.0711529255174254,0,-0.00112561250833938,1990.60977181933
+"Western Europe","Stroke","Prevalence",0.0249207451059348,0,-0.00023519448433874,1990.32781592892
+"Western Europe","Stroke","Incidence",0.000789754929461784,0,-1.45440645797643e-05,1990.86990132335
+"Western Europe","Typhoid and paratyphoid","Deaths",3.90996500698554e-06,0,0,NA
+"Western Europe","Typhoid and paratyphoid","Prevalence",1.51948908303357e-11,0,0,NA
+"Western Europe","Typhoid and paratyphoid","Incidence",1.13017753915278e-06,6.41563610102265e-09,-1.83691491564221e-08,1999.69234601969
+"Western Sub-Saharan Africa","Diarrheal diseases","Deaths",0.10114959956123,0,-0.00163353943143241,1991.04418243638
+"Western Sub-Saharan Africa","Diarrheal diseases","Prevalence",0.0320282060271311,0,0,NA
+"Western Sub-Saharan Africa","Diarrheal diseases","Incidence",0.268674328959503,0.000453266003064668,0,NA
+"Western Sub-Saharan Africa","Falls","Deaths",0.00545938292511234,5.86305524624202e-05,0,NA
+"Western Sub-Saharan Africa","Falls","Prevalence",0.0406103815175287,0.000166300354439278,0,NA
+"Western Sub-Saharan Africa","Falls","Incidence",0.00175306583161075,8.12466623960181e-06,0,NA
+"Western Sub-Saharan Africa","Malaria","Deaths",0.0826424086601589,0.00228745494060458,-0.00518187716382666,2008.99304933371
+"Western Sub-Saharan Africa","Malaria","Prevalence",0.275734518586172,0,-0.00962852220743184,2005.81435278208
+"Western Sub-Saharan Africa","Malaria","Incidence",0.0308315201652681,0,-0.000720996859625719,2005.89827314734
+"Western Sub-Saharan Africa","Multiple sclerosis","Deaths",0.000122331606894989,3.98830272173193e-06,0,NA
+"Western Sub-Saharan Africa","Multiple sclerosis","Prevalence",7.28454593595006e-05,5.46744903542607e-07,-2.4104972012686e-07,2007.53360138522
+"Western Sub-Saharan Africa","Multiple sclerosis","Incidence",5.91557687841102e-07,1.03023777873275e-09,0,NA
+"Western Sub-Saharan Africa","Pancreatic cancer","Deaths",0.00129726122069179,7.93791951290026e-05,0,NA
+"Western Sub-Saharan Africa","Pancreatic cancer","Prevalence",4.0481095958096e-05,1.606847701966e-06,0,NA
+"Western Sub-Saharan Africa","Pancreatic cancer","Incidence",8.77585709207086e-06,3.30725574605234e-07,0,NA
+"Western Sub-Saharan Africa","Protein-energy malnutrition","Deaths",0.0082262086535481,0,-0.000106636342960968,1992.18681385521
+"Western Sub-Saharan Africa","Protein-energy malnutrition","Prevalence",0.0132981920102964,0,0,NA
+"Western Sub-Saharan Africa","Protein-energy malnutrition","Incidence",0.00157404699728903,0,0,NA
+"Western Sub-Saharan Africa","Schistosomiasis","Deaths",0.00328938143532469,0,-5.71683043421704e-05,1990.83393766935
+"Western Sub-Saharan Africa","Schistosomiasis","Prevalence",0.21283333183948,0,-0.00783997077721574,2006.35926361159
+"Western Sub-Saharan Africa","Schistosomiasis","Incidence",0,0,0,NA
+"Western Sub-Saharan Africa","Stroke","Deaths",0.0656388414250382,0,0,NA
+"Western Sub-Saharan Africa","Stroke","Prevalence",0.0281027533130989,0,-5.01083647311755e-05,1991.25957221647
+"Western Sub-Saharan Africa","Stroke","Incidence",0.000727572325327042,0,-3.89326545674541e-06,1994.10607182534
+"Western Sub-Saharan Africa","Typhoid and paratyphoid","Deaths",0.00828127822815771,0,-8.3553590752287e-05,1991.21405394006
+"Western Sub-Saharan Africa","Typhoid and paratyphoid","Prevalence",7.66952149294093e-05,0,-2.8127779239291e-06,1990.47385962512
+"Western Sub-Saharan Africa","Typhoid and paratyphoid","Incidence",0.000521402270515709,0,-1.36614079876573e-05,1990.39792037203

@@ -14,10 +14,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Modeling the global burden of infectious Diseases
- In the first version a location may have been covered by multiple 'regions'; here I use 
- "IHME-GBD_2019_DATA-afd4b08e-1.csv", in which only one classification of 21 mutually exclusive
- regions is used; The file only contains data on HIV, Tuberculosis and Zika virus; data are
- from male and female (but not "both"); ages are largely in 5 year intervals
+ 
+Objectives:
+I defined some objectives of the analysis a priori in "20230815_globalHealth.docx"
+At this point I would generally state the objective as: Can we find some factors with certain diseases/countries that could be applied to other diseases/countries to lower death rates, or that need to be avoided in other diseases/countries to avoid rising death rates.
+
+Change log:
+ In the first version some locations were represented by multiple 'regions'; here I use 
+ data in which only one classification of 21 mutually exclusive
+ regions is used
 
 ## Clean and load libraries
 ```{R}
@@ -73,6 +78,16 @@ cause_location_tab= allTime_HTZ %>%
   summarise(count= n_distinct(year),.groups='drop')
 
 all(cause_location_tab$count == 30)
+
+# cleaning: remove causes for which not all three measures are listed
+incomplete_causes= c()
+for (ca in unique(allTime_HTZ$cause)){
+  len= length(unique(allTime_HTZ$measure[allTime_HTZ$cause==ca]))
+  if(len != 3){
+    incomplete_causes= c(incomplete_causes,ca)
+  }
+}
+allTime_HTZ= allTime_HTZ[! allTime_HTZ$cause %in% incomplete_causes,]
 
 dim(allTime_HTZ)
 head(allTime_HTZ)
@@ -171,12 +186,12 @@ Questions:
 
 ## Two-line model
 Fit a "two-line model" that fits an increasing and a decreasing slope.  Both assume 0th-order kinetics; increase starts (with baseline) from first time point (1990); decrease can start at any time point from 1990. See "20230905_twoLine_model.html/.Rmd" for evaluation of the model.
-Fit parameters b0 (baseline at 1990), b1 (increasing slope), b2 (decreasing slope) and t0 (time point at which decrease starts) via a Bayesian model. Report b1 and b2 if their 80% highest confidence interval excludes 0 and t0 if this is the case for both b1 and b2.
+Fit parameters b0 (baseline at 1990), b1 (increasing slope), b2 (decreasing slope) and t0 (time point at which decrease starts) via a Bayesian model. Report b1 and b2 if they are part of the best model; report t0 if b2 is part of the best model.
 
 Ignore Zika from this point on.
 
 ```{R}
-source('./20230905_twoLine_fit.R')
+source('./20230912_twoLine_inclFac_fit.R')
 
 allTime_HT_asi= allTime_HTZ_asi[allTime_HTZ_asi$cause %in% c('HIV/AIDS','Tuberculosis'),]
 #allTime_HT_asi_D= allTime_HT_asi[allTime_HT_asi$measure=='Deaths',]
@@ -186,7 +201,9 @@ groupedDF= allTime_HT_asi %>%
 dim(groupedDF) #126 combinations
 head(allTime_HT_asi)
 
-if(! file.exists('./20230908_MCMCcoefs.csv')){ #execute only if not yet done
+#groupedDF= groupedDF[groupedDF$location %in% c('Andean Latin America','Eastern Europe','South Asia'),]  ### only temporary
+
+if(! file.exists('./20230913_MCMCcoefs.csv')){ #execute only if not yet done
   MCMCcoefs_DF= data.frame( matrix(NA,nrow=dim(groupedDF)[1],ncol=7))
   colnames(MCMCcoefs_DF)= c('location','cause','measure',
                             'b0_median','b1_median','b2_median','t_inflec_median')
@@ -199,13 +216,22 @@ if(! file.exists('./20230908_MCMCcoefs.csv')){ #execute only if not yet done
     currDF= allTime_HT_asi[allTime_HT_asi$location==groupedDF$location[i] & 
                           allTime_HT_asi$cause==groupedDF$cause[i] &
                           allTime_HT_asi$measure==groupedDF$measure[i]  ,]
-    mcmcDF= twoLine_fit(t= currDF$year, y=currDF$val)
+    mcmcDF_orig= twoLine_fit(t= currDF$year, y=currDF$val)
     
-    HDIlower_b1= HDIofMCMC(mcmcDF$b1,credMass=.80)[1]  #lower bound of HDI -> greater than 0?
-    HDIupper_b2= HDIofMCMC(mcmcDF$b2,credMass=.80)[2]  #upper bound of HDI -> lower than 0?
-    # ! I use 80%, rather than 95% credibility intervals; while individual cases
-     #may be incorrectly classified, overall trends should be correct; a high false-negative
-     #rate needs to be avoided
+    #There are two coefficients (b1, b2) that each can either be present of absent as indicated by indicator      factors
+    mcmcDF_orig$iF1= factor(mcmcDF_orig$iF1, levels=c(0,1)) #to make sure both levels are listed even if only one observed
+    mcmcDF_orig$iF2= factor(mcmcDF_orig$iF2, levels=c(0,1))
+    tab2Way= data.table(table(cbind.data.frame(iF1=mcmcDF_orig$iF1, iF2=mcmcDF_orig$iF2)))
+     #find the most frequent combination of indicator factors -> the best model
+    iF1_best= tab2Way$iF1[tab2Way$N==max(tab2Way$N)]
+    iF2_best= tab2Way$iF2[tab2Way$N==max(tab2Way$N)]
+    
+    #Reduce to MCMC output of the best model
+    mcmcDF= mcmcDF_orig[mcmcDF_orig$iF1==iF1_best & mcmcDF_orig$iF2==iF2_best,]
+    if(iF2_best==0){
+      mcmcDF$t0= NA
+    }
+    
     #Analysis could be extended by cases cross-informing each other (e.g. countries from same
      #region)
     
@@ -213,24 +239,34 @@ if(! file.exists('./20230908_MCMCcoefs.csv')){ #execute only if not yet done
     MCMCcoefs_DF$cause[i]= groupedDF$cause[i]
     MCMCcoefs_DF$measure[i]= groupedDF$measure[i]
     MCMCcoefs_DF$b0_median[i]= median(mcmcDF$b0)
-    #only store rates if confidently different from 0
-    MCMCcoefs_DF$b1_median[i]= ifelse(HDIlower_b1>0,median(mcmcDF$b1),NA) 
-    MCMCcoefs_DF$b2_median[i]= ifelse(HDIupper_b2<0,median(mcmcDF$b2),NA)
-    #only store inflection point if both rates confidently different from 0
-    MCMCcoefs_DF$t_inflec_median[i]= 
-      ifelse(HDIlower_b1>0 & HDIupper_b2<0,median(mcmcDF$t0),NA)
+    MCMCcoefs_DF$b1_median[i]= median(mcmcDF$b1)
+    MCMCcoefs_DF$b2_median[i]= median(mcmcDF$b2)
+    MCMCcoefs_DF$t_inflec_median[i]= median(mcmcDF$t0)  #may be NA
   }
   
   # write output so you do not need to run this code every time
-  write.csv(MCMCcoefs_DF, './20230908_MCMCcoefs.csv', row.names = FALSE)
+  write.csv(MCMCcoefs_DF, './20230913_MCMCcoefs.csv', row.names = FALSE)
 } else {
-  MCMCcoefs_DF= read.csv('./20230908_MCMCcoefs.csv', stringsAsFactors=TRUE)
+  MCMCcoefs_DF= read.csv('./20230913_MCMCcoefs.csv', stringsAsFactors=TRUE)
 }
 str(MCMCcoefs_DF)
 dim(MCMCcoefs_DF)
 ```
-34 of the 42 location-cause combinations exhibit a decrease (in some cases after
-(initial increase) in death rate
+Looking at the estimated coefficients
+```{R}
+print(paste('Estimates for',dim(MCMCcoefs_DF)[1],'settings.'))
+print(paste(sum(MCMCcoefs_DF$b1_median>0),'with increase in death rate.'))
+print(paste(sum(MCMCcoefs_DF$b2_median<0),'with decrease in death rate.'))
+par(mfrow=c(1,3))
+hist(MCMCcoefs_DF$b1_median[MCMCcoefs_DF$b1_median>0],breaks=50,main='Settings with incr. death rate',
+     xlab='% / year')
+hist(MCMCcoefs_DF$b2_median[MCMCcoefs_DF$b2_median<0],breaks=50,main='Settings with decr. death rate',
+     xlab='% / year')
+hist(MCMCcoefs_DF$t_inflec_median,breaks=50,main='Inflection year',
+     xlab='year')
+```
+
+[change from % to cases/10 000]
 
 ```{R, out.width=c('80%','80%','50%'),out.height=c('80%','80%','50%'),fig.align='center', fig.show='hold'}
 #
@@ -306,7 +342,7 @@ Summarize the dynamics via coefficients b0 (level around 1990), b1 (increase rat
 b2 (decline rate) and t0 (inflection point)
 [So far, I only plot entries with declining death rate, but it may be better to
  plot all and indicate value as missing if not confidently different from 0]
-```{R}
+```{R fig.height=6, fig.width=5}
 MCMCcoefs_DF$loc_cause= paste(MCMCcoefs_DF$location,MCMCcoefs_DF$cause,sep=', ')
 str(MCMCcoefs_DF)
 
@@ -320,15 +356,15 @@ MCMCcoefs_DF_NA= MCMCcoefs_wide[is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #
 MCMCcoefs_DF_noNA= MCMCcoefs_wide[!is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #with inflection point
 
 #out of the data that do not have inflection year, get the ones that have decline
-MCMCcoefs_DF_NA_decl= MCMCcoefs_DF_NA[!is.na(MCMCcoefs_DF_NA$b2_median_Deaths),]
-MCMCcoefs_DF_NA_nodecl= MCMCcoefs_DF_NA[is.na(MCMCcoefs_DF_NA$b2_median_Deaths),]
+MCMCcoefs_DF_NA_decl= MCMCcoefs_DF_NA[MCMCcoefs_DF_NA$b2_median_Deaths!=0,]
+MCMCcoefs_DF_NA_nodecl= MCMCcoefs_DF_NA[MCMCcoefs_DF_NA$b2_median_Deaths==0,]
 
 #sort data with declining death rate (but no inflection) by decline of death rate
 ord1= order(MCMCcoefs_DF_NA_decl$b2_median_Deaths)
 #sort data with inflection by inflection year
-ord2= order(MCMCcoefs_DF_noNA$t_inflec_median_Deaths) + max(ord1) #start after ord1
+ord2= order(MCMCcoefs_DF_noNA$t_inflec_median_Deaths) + max(c(0,ord1)) #start after ord1
 #sort data without declining death rate by increase in death rate
-ord3= order(MCMCcoefs_DF_NA_nodecl$b1_median_Deaths) + max(ord2) #start after ord2
+ord3= order(MCMCcoefs_DF_NA_nodecl$b1_median_Deaths) + max(c(0,ord2)) #start after ord2
 
 #order factor levels of 'loc_cause'
 MCMCcoefs_patchw= rbind.data.frame(MCMCcoefs_DF_NA_decl,MCMCcoefs_DF_noNA,MCMCcoefs_DF_NA_nodecl)
@@ -354,17 +390,194 @@ head(DrD_melt)
 
 ggplot()+
   geom_tile(data=DrD_melt[DrD_melt$coefType=='rate',],aes(x=variable,y=loc_cause,fill=value))+
-  scale_fill_distiller(type = "seq", palette = "RdBu", guide = guide_colorbar(title.position = "top")) +
+  scale_fill_distiller(type = "seq", palette = "RdBu", 
+  limits=c(-max(abs(DrD_melt$value[DrD_melt$coefType=='rate'])),max(abs(DrD_melt$value[DrD_melt$coefType=='rate']))), values=c(0,.4,.49,.5,.51,.6,1), guide = guide_colorbar(title.position = "top"),name='rate') +
   ggnewscale::new_scale_fill() +
-  #geom_tile(data=DrD_melt[DrD_melt$coefType=='basel.',],aes(x=variable,y=loc_cause,fill=value))+
-  #scale_fill_distiller(type = "seq", palette = "Blues", guide=guide_colorbar(title.position = "top")) +
-  #ggnewscale::new_scale_fill() +
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='basel.',],aes(x=variable,y=loc_cause,fill=value))+
+  scale_fill_distiller(type = "seq", palette = "Blues", guide=guide_colorbar(title.position = "top"),name='level') +
+  ggnewscale::new_scale_fill() +
   geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=loc_cause,fill=value))+
-  scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top")) +
-  theme(axis.text.x=element_text(angle=90))+
+  scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top"),name='year') +
+  theme(axis.text.x=element_text(angle=90),axis.title.y=element_blank(),,axis.title.x=element_blank())+
   facet_grid(.~coefType, scales = "free_x", space = "free_x")
 
 
+```
+
+For tuberculosis, most regions show a decrease in death rate that started before 1990. Most of them are associated with decreasing prevalence rate. Central Asia is an exception, where rates increased till around year 2000.
+HIV/AIDS is divided into clusters with A, inflection point in the 1990ies with little increase beforehand B, inflection from high increase to high decrease coefficient in the 2000ds, C, locations with no change or even increase in deaths. Southern Sub-Saharan Africa stands out with its very high increase, and decrease rate coefficients. 
+Tuberculosis has a much higher baseline prevalence than HIV/AIDS, but baseline deaths are similar.
+
+The strategy for condensing the 30-year behavior into 4 coefficients seems promising. Let`s apply it to more causes.
+
+# 10 additional causes
+Load data
+```{R}
+allTime_10caus_1= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-1.csv',stringsAsFactors = TRUE)   
+allTime_10caus_2= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-2.csv',stringsAsFactors = TRUE)  
+allTime_10caus_3= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-3.csv',stringsAsFactors = TRUE) 
+allTime_10caus= rbind.data.frame(allTime_10caus_1,allTime_10caus_2,allTime_10caus_3)
+allTime_10caus= allTime_10caus[allTime_10caus$metric=='Percent',]
+unique(allTime_10caus$metric)
+str(allTime_10caus)
+dim(allTime_10caus)
+```
+
+Clean
+```{R}
+unique(allTime_10caus$age) #this indicates entry "80-84" instead of "80-84 years" and two other such cases
+levels(allTime_10caus$age)[levels(allTime_10caus$age)=='80-84']= '80-84 years'
+levels(allTime_10caus$age)[levels(allTime_10caus$age)=='85-89']= '85-89 years'
+levels(allTime_10caus$age)[levels(allTime_10caus$age)=='90-94']= '90-94 years'
+levels(allTime_10caus$age)
+
+# cleaning: remove causes for which not all three measures are listed
+unique(allTime_10caus$measure[allTime_10caus$cause=='Guinea worm disease'])
+ #apparently causes that does not have any death associated does not have Deaths metric
+incomplete_causes= c()
+for (ca in unique(allTime_10caus$cause)){
+  len= length(unique(allTime_10caus$measure[allTime_10caus$cause==ca]))
+  if(len != 3){
+    incomplete_causes= c(incomplete_causes,ca)
+  }
+}
+allTime_10caus= allTime_10caus[! allTime_10caus$cause %in% incomplete_causes,]
+```
+## Age- & sex- independent analysis
+Simplify data: Average percentages over all age groups for location-cause-year combination
+```{R}
+allTime_10caus_asi= data.frame( allTime_10caus %>%   #asi= age-, sex- independent
+  group_by(measure,location,cause,year) %>%
+  summarize(val= mean(val),.groups='drop') )
+head(allTime_10caus_asi)
+dim(allTime_10caus_asi)
+```
+Visualize data
+```{R}
+ggplot(data=allTime_10caus_asi[allTime_10caus_asi$measure=='Deaths',],mapping=aes(x=year,y=val,group=location,color=location))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~cause,scales='free_y')+
+  guides(color='none')
+```
+Two-line model
+```{R}
+groupedDF= allTime_10caus_asi %>%
+      group_by(location,cause,measure) %>%
+      summarize(n(),.groups='drop') 
+dim(groupedDF) #609 combinations
+head(allTime_10caus_asi)
+
+#groupedDF= groupedDF[groupedDF$location == 'Andean Latin America',]  ###,'Eastern Europe','South Asia' only temporary
+
+if(! file.exists('./20230913_MCMCcoefs_10caus.csv')){ #execute only if not yet done
+  MCMCcoefs_DF= data.frame( matrix(NA,nrow=dim(groupedDF)[1],ncol=7))
+  colnames(MCMCcoefs_DF)= c('location','cause','measure',
+                            'b0_median','b1_median','b2_median','t_inflec_median')
+  MCMCcoefs_DF$location <- factor(MCMCcoefs_DF$location, levels = levels(groupedDF$location))
+  MCMCcoefs_DF$cause <- factor(MCMCcoefs_DF$cause, levels = levels(groupedDF$cause))
+  MCMCcoefs_DF$measure <- factor(MCMCcoefs_DF$measure, levels = levels(groupedDF$measure))
+
+  for(i in 1:dim(groupedDF)[1]){
+    print(paste(i,'of',dim(groupedDF)[1]))
+    currDF= allTime_10caus_asi[allTime_10caus_asi$location==groupedDF$location[i] & 
+                          allTime_10caus_asi$cause==groupedDF$cause[i] &
+                          allTime_10caus_asi$measure==groupedDF$measure[i]  ,]
+    mcmcDF_orig= twoLine_fit(t= currDF$year, y=currDF$val)
+    
+    #There are two coefficients (b1, b2) that each can either be present of absent as indicated by indicator      factors
+    mcmcDF_orig$iF1= factor(mcmcDF_orig$iF1, levels=c(0,1)) #to make sure both levels are listed even if only one observed
+    mcmcDF_orig$iF2= factor(mcmcDF_orig$iF2, levels=c(0,1))
+    tab2Way= data.table(table(cbind.data.frame(iF1=mcmcDF_orig$iF1, iF2=mcmcDF_orig$iF2)))
+     #find the most frequent combination of indicator factors -> the best model
+    iF1_best= tab2Way$iF1[tab2Way$N==max(tab2Way$N)]
+    iF2_best= tab2Way$iF2[tab2Way$N==max(tab2Way$N)]
+    
+    #Reduce to MCMC output of the best model
+    mcmcDF= mcmcDF_orig[mcmcDF_orig$iF1==iF1_best & mcmcDF_orig$iF2==iF2_best,]
+    if(iF2_best==0){
+      mcmcDF$t0= NA
+    }
+    
+    #Analysis could be extended by cases cross-informing each other (e.g. countries from same
+     #region)
+    
+    MCMCcoefs_DF$location[i]= groupedDF$location[i]
+    MCMCcoefs_DF$cause[i]= groupedDF$cause[i]
+    MCMCcoefs_DF$measure[i]= groupedDF$measure[i]
+    MCMCcoefs_DF$b0_median[i]= median(mcmcDF$b0)
+    MCMCcoefs_DF$b1_median[i]= median(mcmcDF$b1)
+    MCMCcoefs_DF$b2_median[i]= median(mcmcDF$b2)
+    MCMCcoefs_DF$t_inflec_median[i]= median(mcmcDF$t0)  #may be NA
+  }
+  
+  # write output so you do not need to run this code every time
+  write.csv(MCMCcoefs_DF, './20230913_MCMCcoefs_10caus.csv', row.names = FALSE)
+} else {
+  MCMCcoefs_DF= read.csv('./20230913_MCMCcoefs_10caus.csv', stringsAsFactors=TRUE)
+}
+str(MCMCcoefs_DF)
+dim(MCMCcoefs_DF)
+```
+
+```{R fig.height=6, fig.width=5}
+MCMCcoefs_DF$loc_cause= paste(MCMCcoefs_DF$location,MCMCcoefs_DF$cause,sep=', ')
+str(MCMCcoefs_DF)
+
+#pivot:
+MCMCcoefs_wide= pivot_wider(data=MCMCcoefs_DF,id_cols=c('loc_cause','location','cause'),
+            names_from = c('measure'),
+            values_from=c('b0_median','b1_median','b2_median','t_inflec_median'))
+
+#manually sorted: 
+MCMCcoefs_DF_NA= MCMCcoefs_wide[is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #no inflection point
+MCMCcoefs_DF_noNA= MCMCcoefs_wide[!is.na(MCMCcoefs_wide$t_inflec_median_Deaths),] #with inflection point
+
+#out of the data that do not have inflection year, get the ones that have decline
+MCMCcoefs_DF_NA_decl= MCMCcoefs_DF_NA[MCMCcoefs_DF_NA$b2_median_Deaths!=0,]
+MCMCcoefs_DF_NA_nodecl= MCMCcoefs_DF_NA[MCMCcoefs_DF_NA$b2_median_Deaths==0,]
+
+#sort data with declining death rate (but no inflection) by decline of death rate
+ord1= order(MCMCcoefs_DF_NA_decl$b2_median_Deaths)
+#sort data with inflection by inflection year
+ord2= order(MCMCcoefs_DF_noNA$t_inflec_median_Deaths) + max(c(0,ord1)) #start after ord1
+#sort data without declining death rate by increase in death rate
+ord3= order(MCMCcoefs_DF_NA_nodecl$b1_median_Deaths) + max(c(0,ord2)) #start after ord2
+
+#order factor levels of 'loc_cause'
+MCMCcoefs_patchw= rbind.data.frame(MCMCcoefs_DF_NA_decl,MCMCcoefs_DF_noNA,MCMCcoefs_DF_NA_nodecl)
+ord= c(ord1,ord2,ord3)
+MCMCcoefs_patchw$loc_cause= factor(MCMCcoefs_patchw$loc_cause,ordered=TRUE,
+           levels= MCMCcoefs_patchw$loc_cause[ord])
+
+DrD_melt= melt(MCMCcoefs_patchw,id.vars= c('loc_cause','location','cause'),
+    measure.vars=
+      c('b0_median_Deaths','b1_median_Deaths','b2_median_Deaths','t_inflec_median_Deaths',
+        'b0_median_Prevalence','b1_median_Prevalence',
+        'b2_median_Prevalence'  ))
+ #drop Incidence (very low):'b0_median_Incidence', 'b1_median_Incidence','b2_median_Incidence','t_inflec_median_Incidence'
+ #drop inflection of prevalence (very few observed): ,'t_inflec_median_Prevalence'
+str(DrD_melt)
+
+DrD_melt$coefType= rep('rate',dim(DrD_melt)[1])
+DrD_melt$coefType[DrD_melt$variable %in% c('b0_median_Deaths',
+                  'b0_median_Prevalence','b0_median_Incidence')]= 'basel.'
+DrD_melt$coefType[DrD_melt$variable %in% c('t_inflec_median_Deaths',
+                  't_inflec_median_Prevalence','t_inflec_median_Incidence')]= 'year'
+head(DrD_melt)
+
+ggplot()+
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='rate',],aes(x=variable,y=loc_cause,fill=value))+
+  scale_fill_distiller(type = "seq", palette = "RdBu", 
+  limits=c(-max(abs(DrD_melt$value[DrD_melt$coefType=='rate'])),max(abs(DrD_melt$value[DrD_melt$coefType=='rate']))), values=c(0,.4,.49,.5,.51,.6,1), guide = guide_colorbar(title.position = "top"),name='rate') +
+  ggnewscale::new_scale_fill() +
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='basel.',],aes(x=variable,y=loc_cause,fill=value))+
+  scale_fill_distiller(type = "seq", palette = "Blues", guide=guide_colorbar(title.position = "top"),name='level') +
+  ggnewscale::new_scale_fill() +
+  geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=loc_cause,fill=value))+
+  scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top"),name='year') +
+  theme(axis.text.x=element_text(angle=90),axis.title.y=element_blank(),,axis.title.x=element_blank())+
+  facet_grid(.~coefType, scales = "free_x", space = "free_x")
 ```
 
 # Below: Work in progress: IGNORE for now! 
