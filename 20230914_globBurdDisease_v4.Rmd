@@ -1,8 +1,10 @@
 ---
-title: "20230816_globBurdDisease"
+title: "Global Burden of Disease"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
+  #code_folding: hide
 date: "2023-08-16"
 ---
 
@@ -13,12 +15,12 @@ Data source: https://vizhub.healthdata.org/gbd-results/
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Modeling the global burden of infectious Diseases
+# Modeling the global burden of diseases
  
 Objectives:
-I defined some objectives of the analysis a priori in "20230815_globalHealth.docx"
-At this point I would generally state the objective as: Can we find some factors/interventions associated with certain diseases/countries that could be applied to other diseases/countries to lower death rates, or that need to be avoided in other diseases/countries to avoid rising death rates? These factors would not necessarily be within the GBD data. For example, I might find that disease X decreased in countries A,B,C from year 19XX, but remained stable in countries D,E. I could then try to research what happened in A,B,C, but not D,E around this time.
-[Another simple question to start off with would be: Which disease has a high death rate but also examples (e.g. certain countries, age groups, sex) where it has already declined a lot.] 
+I did some brainstorming and defined some objectives of the analysis a priori in "20230815_globalHealth.docx"
+At this point I would generally state the objective as: Can we find some factors/interventions associated with certain diseases/countries that could be applied to other diseases/countries to lower death rates, or that need to be avoided in other diseases/countries to avoid rising death rates? These factors would not necessarily be within the GBD data. For example, I might find that disease X decreased in countries A,B,C from year 19XX, but remained stable in countries D,E. I could then try to research what happened in A,B,C, but not D,E around this time.  
+[Another simple question to start off with would be: Which disease has a high death rate but also examples (e.g. certain countries, age groups, sex) where it has already declined a lot?] 
 
 Change log:
  In the first version some locations were represented by multiple 'regions'; here I use 
@@ -26,14 +28,13 @@ Change log:
  regions is used
 
 ## Clean and load libraries
-```{R}
+```{R, message= FALSE}
 rm(list=ls())
 cat('\014')
 graphics.off()
 
 wd= getwd()
 
-suppressWarnings({      #no warnings to avoid cluttering Knit
 library('rjags')
 library('tidyverse')
 library('data.table')
@@ -44,43 +45,54 @@ library('zoo')
 library('ggpubr')
 library('ggnewscale')
 library('dtw')  #time series clustering
+library('formatR')
 source('./DBDA2E-utilities_mod.R')  #modified to fit markdown
-})  
 ```
 
 ## Data import and cleaning
-Obtain a file that contains all years only for "Tuberculosis","HIV/AIDS","Zika virus"
-```{R}
+Obtain a file that contains all years only for "Tuberculosis","HIV/AIDS","Zika virus"  
+(see 'readme' for exact parameter specifications)
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 allTime_HTZ_Deaths= read.csv('./20230823_Deaths_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-afd4b08e-1.csv',stringsAsFactors = TRUE)   #HTZ= "Tuberculosis","HIV/AIDS","Zika virus"
 #limit to metric== 'Percent' and remove 'Number'
 allTime_HTZ_Deaths= allTime_HTZ_Deaths[allTime_HTZ_Deaths$metric=='Percent',]
 
-allTime_HTZ_PrevInci= read.csv('./20230907_PrevInci_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-cacc055a-1.csv',stringsAsFactors = TRUE)
+allTime_HTZ_PrevInci= read.csv('./20230907_PrevInci_HTZ_21reg_MF_5year/IHME-GBD_2019_DATA-cacc055a-1.csv',  stringsAsFactors = TRUE)
 
 allTime_HTZ= rbind.data.frame(allTime_HTZ_Deaths,allTime_HTZ_PrevInci)
 ```
 
 Check data for completeness
 ```{R}
-unique(allTime_HTZ$age) #this indicates entry "80-84" instead of "80-84 years" and two other such cases
+unique(allTime_HTZ$age) 
+```
+Apparently the "age" column has entry "80-84" instead of "80-84 years" and two other such cases. -> Correct them.
+
+```{R, message= FALSE}
 levels(allTime_HTZ$age)[levels(allTime_HTZ$age)=='80-84']= '80-84 years'
 levels(allTime_HTZ$age)[levels(allTime_HTZ$age)=='85-89']= '85-89 years'
 levels(allTime_HTZ$age)[levels(allTime_HTZ$age)=='90-94']= '90-94 years'
 levels(allTime_HTZ$age)
+```
 
-# Not all ages are in 5-year intervals -> remove the ones that are not
+Not all ages are in 5-year intervals -> remove the ones that are not
+```{R}
 unique(allTime_HTZ$age[ str_detect(allTime_HTZ$age,'[0-9]+-[0-9]+ years')] ) #check
 allTime_HTZ= allTime_HTZ[ str_detect(allTime_HTZ$age,'[0-9]+-[0-9]+ years'), ]
+```
 
-#all location - cause combinations should have 30 years
+All location - cause combinations should have 30 years -> check that this is the case
+```{R}
 cause_location_tab= allTime_HTZ %>%
   filter(measure=='Deaths' & sex=='Male' & age=='30-34 years' ) %>%
   group_by(cause,location) %>%
   summarise(count= n_distinct(year),.groups='drop')
 
 all(cause_location_tab$count == 30)
+```
 
-# cleaning: remove causes for which not all three measures are listed
+Apparently causes which do not have any deaths do not list the "Deaths" measure -> remove causes for which not all three measures are listed
+```{R}
 incomplete_causes= c()
 for (ca in unique(allTime_HTZ$cause)){
   len= length(unique(allTime_HTZ$measure[allTime_HTZ$cause==ca]))
@@ -91,43 +103,40 @@ for (ca in unique(allTime_HTZ$cause)){
 allTime_HTZ= allTime_HTZ[! allTime_HTZ$cause %in% incomplete_causes,]
 
 dim(allTime_HTZ)
-head(allTime_HTZ)
 str(allTime_HTZ)
 ```
 
-Encode 'cause' as number to allow indexing by it
+Check the cleaned data once more.
 ```{R}
-allTime_HTZ$disFac= as.numeric(as.factor(allTime_HTZ$cause))
-dim(allTime_HTZ)
-summary(allTime_HTZ$val)
-summary(allTime_HTZ$year)
+head(allTime_HTZ)
 ```
 
 ## Overview of death and prevalence rates
-```{R}
-hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],main='Death percentages - all margins')
-hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],xlim=c(0,0.1),breaks= 200,main='Zoom: Death percentages - all margins')
-hist(allTime_HTZ$val[allTime_HTZ$measure=='Prevalence'],main='Prevalence percentages - all margins')
+Display as counts over the various locations, sex, age groups, causes and years
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50),fig.width=3,fig.height=6}
+par(mfrow=c(3,1))
+hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],main='Death percentages - all margins',xlab='% Deaths')
+hist(allTime_HTZ$val[allTime_HTZ$measure=='Deaths'],xlim=c(0,0.1),breaks= 200,main='Zoom: Death percentages - all margins',xlab='% Deaths')
+hist(allTime_HTZ$val[allTime_HTZ$measure=='Prevalence'],main='Prevalence percentages - all margins',xlab='% Prevalence')
+par(mfrow=c(1,1))
 ```
+Non-zero death rates for the selected causes are apparently mainly in the region < 0.01%; much higher prevalence rates (~0.4%) are observed.
 
-## Age- & sex- independent analysis
-Simplify data: Average percentages over all age groups for location-cause(disFac)-year combination
+# Age- & sex- independent analysis
+Simplify data: Average percentages over all age groups for location-cause-year combination
 ```{R}
 allTime_HTZ_asi= data.frame( allTime_HTZ %>%   #asi= age-, sex- independent
-  group_by(measure,location,cause,disFac,year) %>%
+  group_by(measure,location,cause,year) %>%
   summarize(val= mean(val),.groups='drop') )
 head(allTime_HTZ_asi)
 dim(allTime_HTZ_asi)
 ```
 
-# Analysis of percentage of deaths
+Visualize death rates
 ```{R}
 allTime_HTZ_asi_D= allTime_HTZ_asi %>%
   filter(measure=='Deaths')
-```
 
-Visualize data
-```{R}
 ggplot(data=allTime_HTZ_asi_D,mapping=aes(x=year,y=val,group=location,color=location))+
   geom_point()+
   geom_line()+
@@ -136,10 +145,12 @@ ggplot(data=allTime_HTZ_asi_D,mapping=aes(x=year,y=val,group=location,color=loca
 ```
 
 First impression:
-*For countries with highest HIV/AIDS death rates: HIV/AIDS death rates rises till about year 2000-2005, then steady decline
-*some HIV outliers that need to be investigated: data entry error or really some factor that lowered death rates
-*In most countries, tuberculosis is steadily declining, but in some there appears to be outbreak
-*Zika is only observed in recent years and has high death rates only in few locations
+
+* For countries with highest HIV/AIDS death rates: HIV/AIDS death rates rises till about year 2000-2005, then steady decline
+* some HIV outliers that need to be investigated: data entry error or really some factor that lowered death rates
+* In most countries, tuberculosis is steadily declining, but in some there appears to be outbreak
+* Zika is only observed in recent years and has high death rates only in few locations
+
 
 Are there locations that did not have any Zika case?
 ```{R}
@@ -151,10 +162,11 @@ allTime_HTZ_asi_D_sums[allTime_HTZ_asi_D_sums$sumPerc==0,]
 ```
 15 locations did not have any case of Zika
 
-Normalize to max percentages to get a clearer picture of dynamics in low incidence locations
-```{R}
+
+Normalize to max. percentages to get a clearer picture of dynamics in low incidence locations
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 allTime_HTZ_asi_D_norm= allTime_HTZ_asi_D %>%
-  group_by(location,cause,disFac) %>%
+  group_by(location,cause) %>%
   mutate(val_maxNorm= val/ifelse(max(val)>0,max(val),1) ) %>%
   ungroup()
 
@@ -166,7 +178,8 @@ ggplot(data=allTime_HTZ_asi_D_norm,mapping=aes(x=year,y=val_maxNorm,group=locati
   guides(color='none')    
 ```
 
-## To be added: Outlier investigation
+------------------------------------------------------------------------
+[ To be added: Outlier investigation
 For some points it is obvious that they are outliers as they break the otherwise "smooth appearance" of the curve; In most cases these may just be data entry problems, but in some something might have occurred that lead to a vastly different death rate.
 To find outliers, check the deviation of each actual point from the average of two points to the left and two to the right.
 
@@ -175,23 +188,29 @@ To find outliers, check the deviation of each actual point from the average of t
 a= c(2,0,1,2,6)
 zoo::rollapply(a,width=5,FUN=function(x){mean(c(x[1],x[2],x[4],x[5]))},align='center')
 ```
+]
+-------------------------------------------------------------------------
 
 The time behavior of death rates for HIV/AIDS and Tuberculosis differs widely between locations; 
 1. I will first summarize curves into a few parameters. This will facilitate comparison and processing more data
 2. I will cluster curves based on the full data
 
 Questions:
+
 * How do death rates relate to prevalence/incidence rate of the same disease at the same location?
 * Do countries within the same region behave similarly? Which are outliers?
 * Can I find common features among groups with similar curves?
 
 ## Two-line model
-Fit a "two-line model" that fits an increasing and a decreasing slope.  Both assume 0th-order kinetics; increase starts (with baseline) from first time point (1990); decrease can start at any time point from 1990. See "20230905_twoLine_model.html/.Rmd" for evaluation of the model.
-Fit parameters b0 (baseline at 1990), b1 (increasing slope), b2 (decreasing slope) and t0 (time point at which decrease starts) via a Bayesian model. Report b1 and b2 if they are part of the best model; report t0 if b2 is part of the best model.
+Fit a "two-line model" with linear combination of increasing and a decreasing slope.  Both assume 0th-order kinetics; increase starts (from baseline value) at the first time point (1990); decrease can start at any time point from 1990. See "20230905_twoLine_model.html/.Rmd" for evaluation of the model.  
+Fit parameters b0 (baseline at 1990), b1 (increasing slope), b2 (decreasing slope) and t0 (time point at which decrease starts) via a Bayesian model. Report b1 and b2 if they are part of the best model (i.e. better than the model where at least one of them is excluded); report t0 if b2 is part of the best model.
+$$\mu(t)= b_0 + b_1*t, t<t_0$$
+$$\mu(t)= b_0 + b_1*t + b_2*t, t \ge t_0$$
 
-Ignore Zika from this point on.
 
-```{R}
+Due to its special nature (only very recent appearance; only in few locations) ignore Zika from this point on.
+
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 source('./20230912_twoLine_inclFac_fit.R')
 
 allTime_HT_asi= allTime_HTZ_asi[allTime_HTZ_asi$cause %in% c('HIV/AIDS','Tuberculosis'),]
@@ -253,8 +272,9 @@ if(! file.exists('./20230914_MCMCcoefs.csv')){ #execute only if not yet done
 str(MCMCcoefs_DF)
 dim(MCMCcoefs_DF)
 ```
+
 Looking at the estimated coefficients
-```{R}
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 print(paste('Estimates for',dim(MCMCcoefs_DF)[1],'settings.'))
 print(paste(sum(MCMCcoefs_DF$b1_median>0),'with increase in death rate.'))
 print(paste(sum(MCMCcoefs_DF$b2_median<0),'with decrease in death rate.'))
@@ -267,9 +287,9 @@ hist(MCMCcoefs_DF$t_inflec_median,breaks=50,main='Inflection year',
      xlab='year')
 ```
 
-[change from % to cases/10 000]
+[to do: change from % to cases/10 000]
 
-```{R, out.width=c('80%','80%','50%'),out.height=c('80%','80%','50%'),fig.align='center', fig.show='hold'}
+```{R, out.width=c('90%','90%','50%'),out.height=c('90%','90%','50%'),fig.align='center', fig.show='hold', tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 #
 #out.width=c('500px','300px','500px')
 #,out.width=c('100%','100%','100%')
@@ -286,40 +306,43 @@ ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
   geom_line()+
   ggtitle('HIV/AIDS')+
   guides(color="none")+
-  facet_wrap(vars(location),ncol=4,scales='free_y')  #look at both fixed and free y
+  facet_wrap(vars(location),ncol=4,scales='free_y')+  #look at both fixed and free y
+  theme(strip.text.x=element_text(size=6))
 
-leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
-                          mapping=aes(x=year,y=val,group=measure,color=measure))+
-                          geom_line())
+# leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
+#                           mapping=aes(x=year,y=val,group=measure,color=measure))+
+#                           geom_line())
 
 ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='Tuberculosis',  ],
          mapping=aes(x=year,y=val,group=measure,color=measure))+
   geom_line()+
   ggtitle('Tuberculosis')+
-  guides(color="none")+
-  facet_wrap(vars(location),ncol=4,scales='free_y')  # look at both fixed and free y
+  #guides(color="none")+
+  facet_wrap(vars(location),ncol=4,scales='free_y')+  # look at both fixed and free y
+  theme(strip.text.x=element_text(size=6),legend.position = 'bottom')
 
-
-leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
-                          mapping=aes(x=year,y=val,group=measure,color=measure))+
-                          geom_line() )
-as_ggplot(leg)
+# leg= ggpubr::get_legend(ggplot(data=allTime_HT_asi[ allTime_HT_asi$cause=='HIV/AIDS',  ],
+#                           mapping=aes(x=year,y=val,group=measure,color=measure))+
+#                           geom_line() )
+# as_ggplot(leg)
 ```
 
 Observations:
  
  HIV/AIDS:
+ 
  *in the countries with high death rates (Sub-Saharan Africa, Caribbean, Oceania), there is an
   inflection point ~2000-2005; from this point on, rates decrease in Sub-Saharan and Caribbean
   Africa regions and are stable in Oceania
  *the death rate is above prevalence in all regions -> this needs to be clarified: how can
-  more people die from a disease than have the disease; how were prevalence data collected
- *the dynamics in lower death rate regions vary but most seem to have an inflection point
+  more people die from a disease than have the disease?; how were prevalence data collected?
+ *the dynamics in lower death rate regions, vary but most seem to have an inflection point
   within the 1990-2019 period; in regions with very low death rate, the death rate is still
   rising (e.g. Central Asia, Western Europe)
  *prevalence is generally rising or stable; incidences are close to 0 everywhere
  
  Tuberculosis:
+ 
   *the dynamics are quite different from HIV/AIDS
   *prevalence is higher than death rate in all regions
   *prevalence is generally declining or stable
@@ -327,8 +350,9 @@ Observations:
   *there appears to be pos. correlation between prevalence and death rate, but with exceptions
    (e.g. countries with high prevalence and very low deaths) -> follow up on
 
--------
+-------------------------------------------------------------------------------
 How meaningful are prevalence (and incidence) rates? Possible scenarios:
+
  *prevalence is tested in random sample; death rates should also be from
   random samples or all deaths recorded
  *all serious cases of the disease (the ones that may lead to death) are recorded
@@ -336,14 +360,12 @@ How meaningful are prevalence (and incidence) rates? Possible scenarios:
  *for each death it is determined if it was due to the cause of interest ->
   depends on environment (e.g. autopsies at unknown cause of death?) and disease
   manifestation (obvious signs of the disease?)
---------
+-------------------------------------------------------------------------------
 
 ## Summary of dynamics
 Summarize the dynamics via coefficients b0 (level around 1990), b1 (increase rate),
 b2 (decline rate) and t0 (inflection point)
-[So far, I only plot entries with declining death rate, but it may be better to
- plot all and indicate value as missing if not confidently different from 0]
-```{R fig.height=6, fig.width=5}
+```{R fig.height=6, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 MCMCcoefs_DF$loc_cause= paste(MCMCcoefs_DF$location,MCMCcoefs_DF$cause,sep=', ')
 str(MCMCcoefs_DF)
 
@@ -399,10 +421,8 @@ ggplot()+
   ggnewscale::new_scale_fill() +
   geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=loc_cause,fill=value))+
   scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top"),name='year') +
-  theme(axis.text.x=element_text(angle=90),axis.title.y=element_blank(),axis.title.x=element_blank())+
-  facet_grid(.~coefType, scales = "free_x", space = "free_x")
-
-
+  facet_grid(.~coefType, scales = "free_x", space = "free_x")+
+  theme(axis.text.x=element_text(angle=90,vjust=0.4),axis.title.y=element_blank(),axis.title.x=element_blank(),strip.text.x=element_text(size=5))
 ```
 
 For tuberculosis, most regions show a decrease in death rate that started before 1990. Most of them are associated with decreasing prevalence rate. Central Asia is an exception, where rates increased till around year 2000.
@@ -412,8 +432,11 @@ Tuberculosis has a much higher baseline prevalence than HIV/AIDS, but baseline d
 The strategy for condensing the 30-year behavior into 4 coefficients seems promising. Let`s apply it to more causes.
 
 # 10 additional causes
+Repeat the same analysis [to do: merge the analyses]
+
 Load data
-```{R}
+(Download choices similar to above; see 'readme' for details)
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 allTime_10caus_1= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-1.csv',stringsAsFactors = TRUE)   
 allTime_10caus_2= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-2.csv',stringsAsFactors = TRUE)  
 allTime_10caus_3= read.csv('./20230911_DeathPrevInci_10caus_21reg_MF_5year/IHME-GBD_2019_DATA-d86a6f40-3.csv',stringsAsFactors = TRUE) 
@@ -425,7 +448,7 @@ dim(allTime_10caus)
 ```
 
 Clean
-```{R}
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 unique(allTime_10caus$age) #this indicates entry "80-84" instead of "80-84 years" and two other such cases
 levels(allTime_10caus$age)[levels(allTime_10caus$age)=='80-84']= '80-84 years'
 levels(allTime_10caus$age)[levels(allTime_10caus$age)=='85-89']= '85-89 years'
@@ -434,7 +457,7 @@ levels(allTime_10caus$age)
 
 # cleaning: remove causes for which not all three measures are listed
 unique(allTime_10caus$measure[allTime_10caus$cause=='Guinea worm disease'])
- #apparently causes that does not have any death associated does not have Deaths metric
+ #apparently causes that does not have any death associated do not have Deaths metric
 incomplete_causes= c()
 for (ca in unique(allTime_10caus$cause)){
   len= length(unique(allTime_10caus$measure[allTime_10caus$cause==ca]))
@@ -454,15 +477,14 @@ head(allTime_10caus_asi)
 dim(allTime_10caus_asi)
 ```
 Visualize data
-```{R}
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 ggplot(data=allTime_10caus_asi[allTime_10caus_asi$measure=='Deaths',],mapping=aes(x=year,y=val,group=location,color=location))+
-  geom_point()+
   geom_line()+
   facet_wrap(~cause,scales='free_y')+
   guides(color='none')
 ```
-Two-line model
-```{R}
+## Two-line model
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 groupedDF= allTime_10caus_asi %>%
       group_by(location,cause,measure) %>%
       summarize(n(),.groups='drop') 
@@ -513,7 +535,7 @@ if(! file.exists('./20230914_MCMCcoefs_10caus.csv')){ #execute only if not yet d
   }
   
   # write output so you do not need to run this code every time
-  write.csv(MCMCcoefs_DF, './20230914_MCMCcoefs_10caus.csv', row.names = FALSE)
+  write.csv(MCMCcoefs_DF_10caus, './20230914_MCMCcoefs_10caus.csv', row.names = FALSE)
 } else {
   MCMCcoefs_DF_10caus= read.csv('./20230914_MCMCcoefs_10caus.csv', stringsAsFactors=TRUE)
 }
@@ -521,7 +543,7 @@ str(MCMCcoefs_DF_10caus)
 dim(MCMCcoefs_DF_10caus)
 ```
 
-```{R fig.height=12, fig.width=5}
+```{R fig.height=12, fig.width=5, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 MCMCcoefs_DF_10caus$loc_cause= paste(MCMCcoefs_DF_10caus$location,MCMCcoefs_DF_10caus$cause,sep=', ')
 str(MCMCcoefs_DF_10caus)
 str(MCMCcoefs_DF)
@@ -581,18 +603,17 @@ ggplot()+
   ggnewscale::new_scale_fill() +
   geom_tile(data=DrD_melt[DrD_melt$coefType=='year',],aes(x=variable,y=loc_cause,fill=value))+
   scale_fill_distiller(type = "div", palette = "Spectral", guide = guide_colorbar(title.position = "top"),name='year') +
-  theme(axis.title.x=element_blank(),axis.text.x=element_text(angle=90),
-        axis.title.y=element_blank(),axis.text.y=element_text(size=5),)+
+  theme(axis.title.x=element_blank(),axis.text.x=element_text(angle=90,vjust=0.4),
+        axis.title.y=element_blank(),axis.text.y=element_text(size=5))+
   facet_grid(.~coefType, scales = "free_x", space = "free_x")
 ```
 
 Visual interpretation: 
+
 *The heatmap region with increasing deaths is dominated by Pancreatic cancer; however, the highest increase in deaths is due to HIV/AIDS in non-African regions (Oceania, Andean Latin America, Eastern Europe)
 *There is a relative wide region in which neither increase nor decrease in death rates was identified; Multiple Sclerosis shows a particular clustering in this region -> follow up; among these entries, malaria and stroke have higher baseline values; for essentially all of these entries, there is also no change in prevalence rate
 *The region with inflection where death rate decreases (this does not necessarily mean the rate is overall negative) is relatively small and with no obvious enrichment of cause or location
 *There is a large region where deaths are decreasing; there is a clear association between baseline and decrease rate, i.e. settings that start off highest decrease most; as noted above, Tuberculosis has the highest Prevalence baseline and it shows the strongest decrease in prevalence. 
-
-[For entries with only decline rate, but not increase rate it would be better to set inflection year to NA]
 
 # Identification of factors associated with decreasing deaths
 I will next use the technique of summarizing time courses into four parameters to learn the factors associated with declining deaths (b2 < 0). I will use a random forest approach.
@@ -608,20 +629,24 @@ head(allTime_HT_D)
 ```
 
 Visualize data
-```{R}
+```{R, out.width=c('90%','90%','50%'),out.height=c('90%','90%','50%'),fig.align='center', fig.show='hold',tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 #Tuberculosis
 ggplot(data=allTime_HT_D[allTime_HT_D$cause=='Tuberculosis',],mapping=aes(x=year,y=val,group=interaction(location,sex),color=location,lty=sex))+
   #geom_point()+
   geom_line()+
   facet_wrap(~age)+ #,scales='free_y'
-  guides(color='none')
+  guides(color='none')+
+  theme(axis.title=element_blank(),legend.position = 'bottom')
 
 ggplot(data=allTime_HT_D[allTime_HT_D$cause=='HIV/AIDS',],mapping=aes(x=year,y=val,group=interaction(location,sex),color=location,lty=sex))+
   #geom_point()+
   geom_line()+
   facet_wrap(~age)+ #,scales='free_y'
-  guides(color='none')
+  guides(color='none')+
+  theme(axis.title=element_blank(),legend.position = 'bottom')
 ```
+[Change factor order so that years appear consecutively in facet_wrap]
+
 Visual impression:
 Tuberculosis: It seems the same locations have highest rates over all age groups; in most of the groups deaths decrease over time; men generally have higher rates; middle aged individuals have higher number of deaths than very young and very old people
 
@@ -632,6 +657,70 @@ HIV/AIDS:
 *Women generally have higher rates than men
 
 !!! Careful with the analysis within age groups: I assume(!) the data give number of deaths per overall population of the location, not percentage within the age group -> you need to consider the demographics of the country [the same problem also applies to sex, but probably much less severely]
+
+```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
+groupedDF= allTime_HT_D %>%
+      group_by(location,cause,measure,sex,age) %>%
+      summarize(n(),.groups='drop') 
+dim(groupedDF) #1596 combinations
+
+#groupedDF= groupedDF[groupedDF$location == 'Andean Latin America',]  ###,'Eastern Europe','South Asia' only temporary
+
+if(! file.exists('./20230915_MCMCcoefs_HTsex_age.csv')){ #execute only if not yet done
+  MCMCcoefs_DF_HTsex_age= data.frame( matrix(NA,nrow=dim(groupedDF)[1],ncol=9))
+  colnames(MCMCcoefs_DF_HTsex_age)= c('location','cause','measure','sex','age',
+                            'b0_median','b1_median','b2_median','t_inflec_median')
+  MCMCcoefs_DF_HTsex_age$location <- factor(MCMCcoefs_DF_HTsex_age$location, levels = levels(groupedDF$location))
+  MCMCcoefs_DF_HTsex_age$cause <- factor(MCMCcoefs_DF_HTsex_age$cause, levels = levels(groupedDF$cause))
+  MCMCcoefs_DF_HTsex_age$measure <- factor(MCMCcoefs_DF_HTsex_age$measure, levels = levels(groupedDF$measure))
+  MCMCcoefs_DF_HTsex_age$sex <- factor(MCMCcoefs_DF_HTsex_age$sex, levels = levels(groupedDF$sex))
+  MCMCcoefs_DF_HTsex_age$age <- factor(MCMCcoefs_DF_HTsex_age$age, levels = levels(groupedDF$age))
+
+  for(i in 1:dim(groupedDF)[1]){
+    print(paste(i,'of',dim(groupedDF)[1]))
+    currDF= allTime_HT_D[allTime_HT_D$location==groupedDF$location[i] & 
+                          allTime_HT_D$cause==groupedDF$cause[i] &
+                          allTime_HT_D$measure==groupedDF$measure[i] &
+                          allTime_HT_D$sex==groupedDF$sex[i] &
+                          allTime_HT_D$age==groupedDF$age[i],]
+    mcmcDF_orig= twoLine_fit(t= currDF$year, y=currDF$val)
+    
+    #There are two coefficients (b1, b2) that each can either be present of absent as indicated by indicator      factors
+    mcmcDF_orig$iF1= factor(mcmcDF_orig$iF1, levels=c(0,1)) #to make sure both levels are listed even if only one observed
+    mcmcDF_orig$iF2= factor(mcmcDF_orig$iF2, levels=c(0,1))
+    tab2Way= data.table(table(cbind.data.frame(iF1=mcmcDF_orig$iF1, iF2=mcmcDF_orig$iF2)))
+     #find the most frequent combination of indicator factors -> the best model
+    iF1_best= tab2Way$iF1[tab2Way$N==max(tab2Way$N)]
+    iF2_best= tab2Way$iF2[tab2Way$N==max(tab2Way$N)]
+    
+    #Reduce to MCMC output of the best model
+    mcmcDF= mcmcDF_orig[mcmcDF_orig$iF1==iF1_best & mcmcDF_orig$iF2==iF2_best,]
+    if(iF1_best==0 | iF2_best==0){
+      mcmcDF$t0= NA
+    }
+    
+    #Analysis could be extended by cases cross-informing each other (e.g. countries from same
+     #region)
+    
+    MCMCcoefs_DF_HTsex_age$location[i]= groupedDF$location[i]
+    MCMCcoefs_DF_HTsex_age$cause[i]= groupedDF$cause[i]
+    MCMCcoefs_DF_HTsex_age$measure[i]= groupedDF$measure[i]
+    MCMCcoefs_DF_HTsex_age$sex[i]= groupedDF$sex[i]
+    MCMCcoefs_DF_HTsex_age$age[i]= groupedDF$age[i]
+    MCMCcoefs_DF_HTsex_age$b0_median[i]= median(mcmcDF$b0)
+    MCMCcoefs_DF_HTsex_age$b1_median[i]= median(mcmcDF$b1)
+    MCMCcoefs_DF_HTsex_age$b2_median[i]= median(mcmcDF$b2)
+    MCMCcoefs_DF_HTsex_age$t_inflec_median[i]= median(mcmcDF$t0)  #may be NA
+  }
+  
+  # write output so you do not need to run this code every time
+  write.csv(MCMCcoefs_DF, './20230915_MCMCcoefs_HTsex_age.csv', row.names = FALSE)
+} else {
+  MCMCcoefs_DF_HTsex_age= read.csv('./20230915_MCMCcoefs_HTsex_age.csv', stringsAsFactors=TRUE)
+}
+str(MCMCcoefs_DF_HTsex_age)
+dim(MCMCcoefs_DF_HTsex_age)
+```
 
 # Below: Work in progress: IGNORE for now! 
 ```{R}
