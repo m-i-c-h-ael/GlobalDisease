@@ -13,6 +13,9 @@ Data source: https://vizhub.healthdata.org/gbd-results/
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library('reticulate')   #allows using Python
+use_python('C:/Users/wrtlb/AppData/Local/Programs/Python/Python311/python.exe')  # .Rprofile in Documents
 ```
 
 # Modeling the global burden of diseases
@@ -616,9 +619,11 @@ Visual interpretation:
 *There is a large region where deaths are decreasing; there is a clear association between baseline and decrease rate, i.e. settings that start off highest decrease most; as noted above, Tuberculosis has the highest Prevalence baseline and it shows the strongest decrease in prevalence. 
 
 # Identification of factors associated with decreasing deaths
-I will next use the technique of summarizing time courses into four parameters to learn the factors associated with declining deaths (b2 < 0). I will use a random forest approach.
+I will next use the technique of summarizing time courses into four parameters to learn the factors associated with declining deaths (b2 < 0). I will use a decision tree / random forest approach.
 Process the data individually for each age group and sex to have features for classification.
+future:
 Indicate the various categories by which locations can be grouped (e.g. continent, high/low income, ...)
+Classify diseases by group (e.g. infectious, cancer, etc.)
 ```{R}
 # Start with only HIV and Tuberculosis
 allTime_HT= allTime_HTZ[allTime_HTZ$cause %in% c('HIV/AIDS','Tuberculosis'),]
@@ -658,6 +663,7 @@ HIV/AIDS:
 
 !!! Careful with the analysis within age groups: I assume(!) the data give number of deaths per overall population of the location, not percentage within the age group -> you need to consider the demographics of the country [the same problem also applies to sex, but probably much less severely]
 
+Get parameters via MCMC
 ```{R, tidy=TRUE, tidy.opts=list(width.cutoff=50)}
 groupedDF= allTime_HT_D %>%
       group_by(location,cause,measure,sex,age) %>%
@@ -714,13 +720,73 @@ if(! file.exists('./20230915_MCMCcoefs_HTsex_age.csv')){ #execute only if not ye
   }
   
   # write output so you do not need to run this code every time
-  write.csv(MCMCcoefs_DF, './20230915_MCMCcoefs_HTsex_age.csv', row.names = FALSE)
+  write.csv(MCMCcoefs_DF_HTsex_age, './20230915_MCMCcoefs_HTsex_age.csv', row.names = FALSE)
 } else {
   MCMCcoefs_DF_HTsex_age= read.csv('./20230915_MCMCcoefs_HTsex_age.csv', stringsAsFactors=TRUE)
 }
 str(MCMCcoefs_DF_HTsex_age)
 dim(MCMCcoefs_DF_HTsex_age)
 ```
+```{python results='hide}
+# create a new environment 
+import pandas as pd
+
+MCMCcoefs_DF_HTsex_age= pd.read_csv('G:/My Drive/20230815_GlobBurdDisease/20230915_MCMCcoefs_HTsex_age.csv')
+
+
+# Engineer features
+MCMCcoefs_DF_HTsex_age['b2_ind']= ((MCMCcoefs_DF_HTsex_age['b2_median'])<0).astype(int)
+  #indicator describing if there is decline in death rate
+  
+MCMCcoefs_DF_HTsex_age= MCMCcoefs_DF_HTsex_age.drop(columns=['measure','b0_median','b1_median','b2_median','t_inflec_median'])
+
+MCMCcoefs_DF_HTsex_age= pd.get_dummies(MCMCcoefs_DF_HTsex_age)
+MCMCcoefs_DF_HTsex_age.head()
+
+MCMCcoefs_DF_HTsex_age.dtypes
+```
+```{python}
+from sklearn.model_selection import train_test_split
+
+X= MCMCcoefs_DF_HTsex_age.drop(columns=['b2_ind'])
+y= MCMCcoefs_DF_HTsex_age['b2_ind']
+
+X_train, X_test, y_train, y_test= train_test_split(X,y,test_size=0.3,stratify=y,random_state=20230919)
+```
+
+```{python}
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+
+y_train.value_counts()
+y_train.value_counts()[1]/y_train.value_counts().sum() #positive ratio in input
+
+DTm= DecisionTreeClassifier(max_depth=5)  #decision tree model
+DTm.fit(X_train,y_train)
+
+DTm.score(X_test,y_test)
+y_pred= DTm.predict(X_test)
+confusion_matrix(y_test,y_pred)
+
+plot_tree(DTm)
+plt.show()
+```
+
+Interpretation:
+ ("-" == no decrease in death rate; "+" == decrease in death rate)
+
+* split Tuberculosis: no/yes (#22)
+       -> no tuberculosis strongly enriches in '-'; tuberculosis in '+'
+* among the non-tuberculosis samples, all Eastern European, East Asian or Central European  countries are '-' 
+```{python}
+#X_train.head(2)
+X_train.shape
+X_train['cause_Tuberculosis'].value_counts()
+X_train.columns[3]
+```
+
+
 
 # Below: Work in progress: IGNORE for now! 
 ```{R}
