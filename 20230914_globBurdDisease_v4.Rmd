@@ -727,7 +727,7 @@ if(! file.exists('./20230915_MCMCcoefs_HTsex_age.csv')){ #execute only if not ye
 str(MCMCcoefs_DF_HTsex_age)
 dim(MCMCcoefs_DF_HTsex_age)
 ```
-```{python results='hide}
+```{python results='hide'}
 # create a new environment 
 import pandas as pd
 
@@ -754,38 +754,77 @@ y= MCMCcoefs_DF_HTsex_age['b2_ind']
 X_train, X_test, y_train, y_test= train_test_split(X,y,test_size=0.3,stratify=y,random_state=20230919)
 ```
 
+## Decision Tree classification
 ```{python}
 from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 import matplotlib.pyplot as plt
 
 y_train.value_counts()
 y_train.value_counts()[1]/y_train.value_counts().sum() #positive ratio in input
 
-DTm= DecisionTreeClassifier(max_depth=5)  #decision tree model
+DTm= DecisionTreeClassifier(max_depth=5,random_state=20092023)  #decision tree model
 DTm.fit(X_train,y_train)
 
 DTm.score(X_test,y_test)
 y_pred= DTm.predict(X_test)
+accuracy_score(y_test,y_pred)
 confusion_matrix(y_test,y_pred)
 
-plot_tree(DTm)
-plt.show()
+#plot_tree(DTm)
+#plt.show()
 ```
+
+```{python}
+# make sure graphviz is installed and added to PATH and the python package is installed
+import graphviz
+from sklearn.tree import export_graphviz
+
+dot_data= export_graphviz(DTm, out_file=None, feature_names= X_train.columns, filled=True)
+graph= graphviz.Source(dot_data )
+graph.render()
+```
+![Decision Tree: HIV/AIDS, Tuberculosis](20230920_decTree_HT.png)
 
 Interpretation:
  ("-" == no decrease in death rate; "+" == decrease in death rate)
 
 * split Tuberculosis: no/yes (#22)
-       -> no tuberculosis strongly enriches in '-'; tuberculosis in '+'
-* among the non-tuberculosis samples, all Eastern European, East Asian or Central European  countries are '-' 
-```{python}
-#X_train.head(2)
-X_train.shape
-X_train['cause_Tuberculosis'].value_counts()
-X_train.columns[3]
-```
+       -> "non-Tuberculosis" strongly enriched in '-'; tuberculosis in '+'
+* among the non-tuberculosis samples: no decrease in death rate in Eastern European, East Asian or Central European
+* among tuberculosis: less decline in death rate in  Central Sub-Saharan Africa, Eastern Sub-Saharan Africa, Southern Sub-Saharan Africa and Eastern Europe
 
+-> i.e. death rate decreased for HIV/AIDS, but not in Eastern Europe, East Asia, Central Europe
+
+## Random Forest classification
+Try Random Forest classification:
+ It will be less interpretable with respect to individual splits, but importance of various features can be extracted
+```{python}
+from sklearn.ensemble import RandomForestClassifier
+
+rf= RandomForestClassifier(random_state= 20092023)
+rf.fit(X_train,y_train)
+
+y_pred_rf= rf.predict(X_test)
+accuracy_score(y_test,y_pred_rf)
+confusion_matrix(y_test,y_pred_rf)
+```
+Random Forest produces more true negatives, but less true positives than simple decision tree classifier
+
+```{python results='hide'}
+#simplify names
+featNames= pd.Series(X_train.columns)
+featNames= featNames.str.replace('location_|sex_|age_|cause_','',regex=True)
+#print(featNames)
+
+plt.clf()
+plt.bar(x=featNames, height=rf.feature_importances_)
+plt.xticks(rotation=90)
+plt.subplots_adjust(bottom=.5)
+plt.ylabel('Feature Importance')
+plt.show()
+```
+It is clear that in the given dataset the cause (HIV/AIDS vs. tuberculosis is the main factor deciding if death rates decreased or not.)
 
 
 # Below: Work in progress: IGNORE for now! 
