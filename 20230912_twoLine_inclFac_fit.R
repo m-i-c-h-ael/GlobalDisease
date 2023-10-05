@@ -9,8 +9,8 @@ twoLine_fit= function(t, y){
   t_orig= t
   t= t_orig-min(t_orig)  #make sure t starts at 0
   
-  if(all(y==0)){
-    df= data.frame(matrix(data=0,nrow=1,ncol=7))
+  if(all(y== mean(y))){   #no variation
+    df= data.frame(matrix(data= c(mean(y),rep(0,6)),nrow=1,ncol=7))
     colnames(df)= c('b0','b1','b2','t0','iF1','iF2','t0')
     return(df)
   }

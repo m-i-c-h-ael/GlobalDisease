@@ -1,0 +1,7 @@
+"location","cause","measure","b0_median","b1_median","b2_median","t_inflec_median"
+"lA","HIV/AIDS","Deaths",0.2,0.001,0,NA
+"lA","HIV/AIDS","Incidence",0.001,0,0,NA
+"lA","HIV/AIDS","Prevalence",0.001,0,0,NA
+"lA","Tuberculosis","Deaths",0.170540866063428,0,-0.0076249063456035,1990
+"lA","Tuberculosis","Incidence",0.001,0,0,NA
+"lA","Tuberculosis","Prevalence",0.001,0,0,NA

@@ -363,6 +363,12 @@ How meaningful are prevalence (and incidence) rates? Possible scenarios:
  *for each death it is determined if it was due to the cause of interest ->
   depends on environment (e.g. autopsies at unknown cause of death?) and disease
   manifestation (obvious signs of the disease?)
+  
+It should be possible to construct the following model for prevalence, based on incidence, prevalence and deaths. Use absolute number, not percentages for 'D' and 'H' to also include changes in population size.
+![](20230921_epidemRatesModel_1.jpg)
+![](20230921_epidemRatesModel_2.jpg)
+For a complete model, you will need information on individuals w/o disease (number of people and deaths) and cure-rate. If these additional data can be obtained, you could include an error term on the prevalence to estimate how far off these values likely are.
+
 -------------------------------------------------------------------------------
 
 ## Summary of dynamics
